@@ -7,7 +7,11 @@ Version Added:
 # NOTE: This file must be syntactically compatible with Python 3.7+.
 from __future__ import annotations
 
-from typing import List
+from typing import List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from rbinstall.install_methods import InstallMethodType
+    from rbinstall.state import InstallState
 
 
 class InstallerError(Exception):
@@ -57,4 +61,58 @@ class RunCommandError(InstallerError):
 
         super().__init__(
             f'Error executing `{command_str}`: exit code {exit_code}'
+        )
+
+
+class InstallPackageError(InstallerError):
+    """An error installing a package.
+
+    Version Added:
+        1.0
+    """
+
+    def __init__(
+        self,
+        *,
+        error: RunCommandError,
+        install_state: InstallState,
+        install_method: InstallMethodType,
+        packages: List[str] = [],
+        msg: str = '',
+    ) -> None:
+        """Initialize the error.
+
+        Args:
+            error (RunCommandError):
+                The command error that triggered this error.
+
+            install_state (rbinstall.state.InstallState):
+                The state for the installation.
+
+            install_method (rbinstall.install_methods.InstallMethodType):
+                The installation method that failed.
+
+            packages (list of str, optional):
+                The packages that were being installed.
+
+            msg (str, optional):
+                A custom message to return.
+
+                This may contain ``%(package)s``, ``%(command)s``, and
+                ``%(detail)s`` format strings.
+        """
+        self.install_method = install_method
+        self.install_state = install_state
+        self.packages = packages
+
+        super().__init__(
+            (msg or (
+                'There was an error installing one or more packages '
+                '(%(packages)s). The command that failed was: `%(command)s`. '
+                'The error was: %(detail)s'
+            )) % {
+                'command': ' '.join(error.command),
+                'detail': str(error),
+                'packages': ' '.join(packages),
+            }
         )
