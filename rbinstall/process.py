@@ -13,9 +13,11 @@ import shlex
 import sys
 from typing import List, NoReturn, Optional, Sequence
 
+from rich.markup import escape as rich_escape
 from typing_extensions import NotRequired, TypedDict
 
 from rbinstall.errors import RunCommandError
+from rbinstall.ui import get_console
 
 
 DEBUG = (os.environ.get('RBINSTALL_DEBUG') == '1')
@@ -115,12 +117,16 @@ def run(
         rbinstall.errors.RunCommandError:
             There was an error running the command.
     """
+    console = get_console()
+
     if not displayed_command:
         displayed_command = command
 
     if capture_command is None:
-        debug('  $ %s' % join_cmdline(displayed_command),
-              show_prefix=False)
+        displayed_command_str = rich_escape(join_cmdline(displayed_command))
+        console.print(
+            f'[command.prompt]$[/] [command.line]{displayed_command_str}[/]',
+            highlight=False)
     else:
         capture_command.append(displayed_command)
 
@@ -137,16 +143,17 @@ def run(
                                   stderr=subprocess.STDOUT) as p:
                 assert p.stdout is not None
 
-                stdout = sys.stdout
-                stdout_buffer = stdout.buffer
-
                 while p.poll() is None:
-                    stdout_buffer.write(p.stdout.read1())
-                    stdout.flush()
+                    console.out(p.stdout.read1().decode('utf-8', 'ignore'),
+                                style='dim',
+                                highlight=False,
+                                end='')
 
                 # Write anything remaining in the buffer.
-                stdout_buffer.write(p.stdout.read())
-                stdout.flush()
+                console.out(p.stdout.read().decode('utf-8', 'ignore'),
+                            style='dim',
+                            highlight=False,
+                            end='')
 
                 exit_code = p.poll()
 
