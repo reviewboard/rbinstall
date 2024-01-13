@@ -1,0 +1,5 @@
+*.ini
+.rbinstall-test-state
+
+cache
+logs

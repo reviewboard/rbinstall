@@ -1,0 +1,28 @@
+---
+version: '3'
+
+services:
+  pypi-cache:
+    image: epicwink/proxpi:v1.1.0rc0
+    command: "--bind 0.0.0.0:9950 --threads 2"
+    restart: always
+    ports:
+      - 49950:9950
+
+    environment:
+      - PROXPI_CACHE_DIR=/var/cache/proxpi
+
+    volumes:
+      - ./cache/pypi:/var/cache/proxpi
+
+  squid-cache:
+    build:
+      context: squid-proxy
+      dockerfile: Dockerfile
+
+    restart: always
+    ports:
+      - 43128:3128
+
+    volumes:
+      - ./cache/squid:/var/spool/squid
