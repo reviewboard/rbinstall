@@ -219,7 +219,6 @@ DISTS = {
         'type': 'debian',
         'image': 'debian:buster',
         'platforms': ['linux/amd64', 'linux/arm64'],
-        'expect_success': False,
     },
     'debian:11': {
         'type': 'debian',
@@ -484,7 +483,7 @@ def build_dist(
         'ENV PYTHONUNBUFFERED=1',
         'ENV RBINSTALL_DEBUG=1',
         'ADD --chmod=755 rbinstall.py /tmp/rbinstall.py',
-        f'RUN {python} /tmp/rbinstall.py',
+        f'RUN {python} /tmp/rbinstall.py --noinput',
     ]
 
     with open(dockerfile, 'w') as fp:
