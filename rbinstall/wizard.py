@@ -266,7 +266,7 @@ def _show_ask_install_location(
 
         # Check if this path is valid.
         if venv_path and os.path.exists(venv_path):
-            has_files = False # bool(os.listdir(venv_path))
+            has_files = bool(os.listdir(venv_path))
 
             if has_files:
                 console.print()
@@ -615,7 +615,7 @@ def start_wizard(
     _show_intro(install_state)
     _show_ask_install_location(install_state)
     _show_confirm_install(install_state)
-    #_perform_install(install_state)
+    _perform_install(install_state)
     _show_setup_site_dir(install_state)
 
     if install_state['create_sitedir']:
