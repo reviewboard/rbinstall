@@ -244,8 +244,6 @@ def _run_pip_install(
             [
                 install_state['venv_pip_exe'],
                 'install',
-                '--disable-pip-version-check',
-                '--no-python-version-warning',
                 *extra_args,
                 *packages,
             ],
