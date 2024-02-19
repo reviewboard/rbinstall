@@ -283,7 +283,7 @@ def get_system_info() -> SystemInfo:
 
             debug(f'Brew is available at {brew_prefix}')
             paths['brew'] = brew_prefix
-        except subprocess.CalledProcessError:
+        except (FileNotFoundError, subprocess.CalledProcessError):
             debug('Brew is not installed.')
 
             raise InstallerError(

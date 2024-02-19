@@ -6,7 +6,7 @@ Version Added:
 
 from __future__ import annotations
 
-from typing import Set, TYPE_CHECKING
+from typing import Optional, Set, TYPE_CHECKING
 from unittest import TestCase
 
 from rbinstall.install_methods import InstallMethodType
@@ -82,13 +82,7 @@ class GetInstallSteps(TestCase):
         },
     ]
 
-    COMMON_X86_STEPS = [
-        *VIRTUALENV_STEPS,
-        *RB_STEPS,
-        *PYSVN_STEPS,
-    ]
-
-    COMMON_ARM64_STEPS = [
+    COMMON_LINUX_X86_STEPS = [
         *VIRTUALENV_STEPS,
         *RB_STEPS,
         {
@@ -101,6 +95,28 @@ class GetInstallSteps(TestCase):
         },
         *PYSVN_STEPS,
     ]
+
+    COMMON_LINUX_ARM64_STEPS = [
+        *VIRTUALENV_STEPS,
+        *RB_STEPS,
+        *PYSVN_STEPS,
+    ]
+
+    COMMON_MACOS_X86_STEPS = [
+        *VIRTUALENV_STEPS,
+        *RB_STEPS,
+        {
+            'allow_fail': True,
+            'install_method': InstallMethodType.REVIEWBOARD_EXTRA,
+            'name': 'Installing service integrations',
+            'state': [
+                'p4',
+            ],
+        },
+        *PYSVN_STEPS,
+    ]
+
+    COMMON_MACOS_ARM64_STEPS = COMMON_MACOS_X86_STEPS
 
     def test_with_amazon_linux_2_x86_64(self) -> None:
         """Testing get_install_steps with Amazon Linux 2 (x86_64)"""
@@ -148,7 +164,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_amazon_linux_2_aarch64(self) -> None:
@@ -197,7 +213,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_amazon_linux_2023_x86_64(self) -> None:
@@ -237,7 +253,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_amazon_linux_2023_aarch64(self) -> None:
@@ -277,7 +293,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_archlinux_2023_x86_64(self) -> None:
@@ -311,7 +327,7 @@ class GetInstallSteps(TestCase):
                         'subversion',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_archlinux_2023_aarch64(self) -> None:
@@ -345,7 +361,7 @@ class GetInstallSteps(TestCase):
                         'subversion',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_centos_stream_8_x86_64(self) -> None:
@@ -408,7 +424,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_centos_stream_8_aarch64(self) -> None:
@@ -471,7 +487,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_centos_stream_9_x86_64(self) -> None:
@@ -534,7 +550,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_centos_stream_9_aarch64(self) -> None:
@@ -597,7 +613,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_debian_11_x86_64(self) -> None:
@@ -637,7 +653,7 @@ class GetInstallSteps(TestCase):
                         'libsvn-dev',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_debian_11_aarch64(self) -> None:
@@ -677,7 +693,7 @@ class GetInstallSteps(TestCase):
                         'libsvn-dev',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_debian_12_x86_64(self) -> None:
@@ -717,7 +733,7 @@ class GetInstallSteps(TestCase):
                         'libsvn-dev',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_debian_12_aarch64(self) -> None:
@@ -757,7 +773,7 @@ class GetInstallSteps(TestCase):
                         'libsvn-dev',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_fedora_36_x86_64(self) -> None:
@@ -796,7 +812,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_fedora_36_aarch64(self) -> None:
@@ -835,7 +851,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_fedora_37_x86_64(self) -> None:
@@ -874,7 +890,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_fedora_37_aarch64(self) -> None:
@@ -913,7 +929,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_fedora_38_x86_64(self) -> None:
@@ -952,7 +968,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_fedora_38_aarch64(self) -> None:
@@ -991,7 +1007,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_fedora_39_x86_64(self) -> None:
@@ -1030,7 +1046,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_fedora_39_aarch64(self) -> None:
@@ -1069,7 +1085,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_fedora_40_x86_64(self) -> None:
@@ -1108,7 +1124,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_fedora_40_aarch64(self) -> None:
@@ -1147,7 +1163,59 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
+            ])
+
+    def test_with_macos_brew_x86_64(self) -> None:
+        """Testing get_install_steps with macOS using Brew (x86_64)"""
+        install_state = self.create_install_state(
+            system='Darwin',
+            arch='x86_64',
+            version='14.1',
+            install_method=InstallMethodType.BREW)
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.BREW,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'mysql',
+                        'subversion',
+                    ],
+                },
+                *self.COMMON_MACOS_X86_STEPS,
+            ])
+
+    def test_with_macos_brew_aarch64(self) -> None:
+        """Testing get_install_steps with macOS using Brew (aarch64)"""
+        install_state = self.create_install_state(
+            system='Darwin',
+            arch='aarch64',
+            version='14.1',
+            install_method=InstallMethodType.BREW)
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.BREW,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'mysql',
+                        'subversion',
+                    ],
+                },
+                *self.COMMON_MACOS_ARM64_STEPS,
             ])
 
     def test_with_opensuse_leap_15_x86_64(self) -> None:
@@ -1192,7 +1260,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_opensuse_leap_15_aarch64(self) -> None:
@@ -1237,7 +1305,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_opensuse_tumbleweed_x86_64(self) -> None:
@@ -1282,7 +1350,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_opensuse_tumbleweed_aarch64(self) -> None:
@@ -1327,7 +1395,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_rhel_8_x86_64(self) -> None:
@@ -1366,7 +1434,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_rhel_8_aarch64(self) -> None:
@@ -1405,7 +1473,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_rhel_9_x86_64(self) -> None:
@@ -1464,7 +1532,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_rhel_9_aarch64(self) -> None:
@@ -1523,7 +1591,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_rocky_linux_8_x86_64(self) -> None:
@@ -1579,7 +1647,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_rocky_linux_8_aarch64(self) -> None:
@@ -1635,7 +1703,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_rocky_linux_9_x86_64(self) -> None:
@@ -1698,7 +1766,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_rocky_linux_9_aarch64(self) -> None:
@@ -1761,7 +1829,7 @@ class GetInstallSteps(TestCase):
                         'subversion-devel',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_ubuntu_18_04_x86_64(self) -> None:
@@ -1802,7 +1870,7 @@ class GetInstallSteps(TestCase):
                         'libsvn-dev',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_ubuntu_18_04_aarch64(self) -> None:
@@ -1843,7 +1911,7 @@ class GetInstallSteps(TestCase):
                         'libsvn-dev',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_ubuntu_20_04_x86_64(self) -> None:
@@ -1884,7 +1952,7 @@ class GetInstallSteps(TestCase):
                         'libsvn-dev',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_ubuntu_20_04_aarch64(self) -> None:
@@ -1925,7 +1993,7 @@ class GetInstallSteps(TestCase):
                         'libsvn-dev',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_ubuntu_22_04_x86_64(self) -> None:
@@ -1966,7 +2034,7 @@ class GetInstallSteps(TestCase):
                         'libsvn-dev',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_ubuntu_22_04_aarch64(self) -> None:
@@ -2007,7 +2075,7 @@ class GetInstallSteps(TestCase):
                         'libsvn-dev',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def test_with_ubuntu_23_10_x86_64(self) -> None:
@@ -2048,7 +2116,7 @@ class GetInstallSteps(TestCase):
                         'libsvn-dev',
                     ],
                 },
-                *self.COMMON_ARM64_STEPS,
+                *self.COMMON_LINUX_X86_STEPS,
             ])
 
     def test_with_ubuntu_23_10_aarch64(self) -> None:
@@ -2089,7 +2157,7 @@ class GetInstallSteps(TestCase):
                         'libsvn-dev',
                     ],
                 },
-                *self.COMMON_X86_STEPS,
+                *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
     def create_install_state(
@@ -2100,10 +2168,12 @@ class GetInstallSteps(TestCase):
         version: str = '',
         distro_id: str = '',
         distro_families: Set[str] = set(),
+        install_method: Optional[InstallMethodType] = None
     ) -> InstallState:
-        install_method = get_default_linux_install_method(
-            families=distro_families)
-        assert install_method
+        if install_method is None:
+            install_method = get_default_linux_install_method(
+                families=distro_families)
+            assert install_method
 
         return {
             'create_sitedir': False,

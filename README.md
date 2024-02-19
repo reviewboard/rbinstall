@@ -11,11 +11,28 @@ Installation can be performed with a single command:
 $ curl https://install.reviewboard.org | python3
 ```
 
+Alternatively, you can run:
+
+```shell
+$ pipx run rbinstall
+```
+
+The installer must be run as `root`.
+
 
 Compatibility
 -------------
 
-rbinstall requires a supported Linux system with Python 3.7 or higher.
+rbinstall requires a supported Linux or macOS system with Python 3.7 or higher.
+
+**NOTE:** If you're using a non-default version of Python, you will need to use
+a web server such as [gunicorn](https://gunicorn.org/),
+[uwsgi](https://uwsgi-docs.readthedocs.io/en/latest/), or build an Apache
+`mod_wsgi` for your server using
+[mod_wsgi-express](https://pypi.org/project/mod-wsgi/).
+
+
+### Linux Compatibility
 
 The following Linux distributions are directly supported on a default install:
 
@@ -47,11 +64,15 @@ The following are known to work if you install a newer version of Python
 * Rocky Linux 8
 * Ubuntu 18.04
 
-**NOTE:** If you're using a non-default version of Python, you will need to use
-a web server such as [gunicorn](https://gunicorn.org/),
-[uwsgi](https://uwsgi-docs.readthedocs.io/en/latest/), or build an Apache
-`mod_wsgi` for your server using
-[mod_wsgi-express](https://pypi.org/project/mod-wsgi/).
+
+### macOS Compatibility
+
+The following versions of macOS have been tested:
+
+* macOS Ventura
+* macOS Sonoma
+
+[Homebrew](https://brew.sh) is currently required for installation on macOS.
 
 
 Legacy Distro Notes

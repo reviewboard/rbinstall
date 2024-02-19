@@ -668,11 +668,22 @@ PACKAGES: _Packages = {
     # Perforce packages.
     'perforce': {
         'service-integrations': [
+            # Linux (Common)
             {
-                # Common
                 'allow_fail': True,
                 'match': {
                     'archs': {'x86_64'},
+                    'systems': {'Linux'},
+                },
+                'install_method': InstallMethodType.REVIEWBOARD_EXTRA,
+                'packages': ['p4'],
+            },
+
+            # macOS
+            {
+                'allow_fail': True,
+                'match': {
+                    'systems': {'Darwin'},
                 },
                 'install_method': InstallMethodType.REVIEWBOARD_EXTRA,
                 'packages': ['p4'],
@@ -778,6 +789,17 @@ PACKAGES: _Packages = {
                 'packages': [
                     'subversion',
                     'subversion-devel',
+                ],
+            },
+
+            # macOS
+            {
+                'match': {
+                    'systems': {'Darwin'},
+                },
+                'install_method': InstallMethodType.BREW,
+                'packages': [
+                    'subversion',
                 ],
             },
         ],
