@@ -240,6 +240,13 @@ def main(
         init_console(allow_color=options.color,
                      allow_interactive=options.interactive)
 
+        if options.interactive and not os.isatty(sys.stdout.fileno()):
+            raise InstallerError(_(
+                'To run the Review Board installer without an interactive '
+                'terminal, please run with --noinput. This will run an '
+                'unattended install of Review Board, using defaults.'
+            ))
+
         with console.status(_('Gathering system and package information...')):
             system_info = get_system_info()
             package_versions = get_package_versions(system_info=system_info,
