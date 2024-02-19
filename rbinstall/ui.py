@@ -317,25 +317,29 @@ def query_terminal(
     if termios is None or tty is None or not os.isatty(sys.stdout.fileno()):
         return ''
 
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-
-    result = ''
-
     try:
-        tty.setraw(fd)
-        sys.stdout.write(ansi_code)
-        sys.stdout.flush()
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
 
-        for i in range(max_len):
-            c = sys.stdin.read(1)
+        result = ''
 
-            if c == terminator or not c:
-                break
+        try:
+            tty.setraw(fd)
+            sys.stdout.write(ansi_code)
+            sys.stdout.flush()
 
-            result += c
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+            for i in range(max_len):
+                c = sys.stdin.read(1)
+
+                if c == terminator or not c:
+                    break
+
+                result += c
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    except Exception:
+        # Something went wrong, so just return an empty string.
+        result = ''
 
     return result
 

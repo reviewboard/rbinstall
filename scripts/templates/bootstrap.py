@@ -37,6 +37,25 @@ def main():
         )
         sys.exit(1)
 
+    stdin_fd = sys.stdin
+
+    if not sys.stdin.isatty():
+        # This script was passed to Python. We'll need to reopen this as
+        # /dev/tty.
+        try:
+            stdin_fd = open('/dev/tty', 'r')
+        except Exception:
+            sys.stderr.write(
+                'Warning: Unable to read from /dev/tty. This may prevent\n'
+                'you from providing input to the installer. You may want\n'
+                'to download this installer and run it manually as a\n'
+                'Python script:\n'
+                '\n'
+                '    $ curl -o rbinstall.py https://install.reviewboard.org\n'
+                '    $ %s ./rbinstall.py\n'
+                '\n'
+                % sys.executable)
+
     tmp_path = tempfile.mkdtemp(prefix='rbinstall-')
     atexit.register(lambda: shutil.rmtree(tmp_path))
 
@@ -69,7 +88,7 @@ def main():
                 os.environ,
                 RBINSTALL_FORCE_SYSTEM_PYTHON_EXE=sys.executable,
             ),
-            stdin=sys.stdin.fileno(),
+            stdin=stdin_fd,
             check=True)
     except subprocess.CalledProcessError as e:
         sys.exit(e.returncode)
