@@ -247,6 +247,20 @@ def _run_pip_install(
                 *extra_args,
                 *packages,
             ],
+            env={
+                'CFLAGS': (
+                    # Avoid warnings that can come up on some systems during
+                    # compilation, depending on Python and system library
+                    # versions.
+                    #
+                    # This was first needed for lxml on Fedora 40+, and
+                    # mirrors Fedora's own RPM spec.
+                    # (https://bugs.launchpad.net/lxml/+bug/2051243)
+                    #
+                    # We apply it everywhere as a precaution.
+                    '-Wno-error=incompatible-pointer-types'
+                ),
+            },
             **run_kwargs)
     except RunCommandError as e:
         raise InstallPackageError(install_state=install_state,

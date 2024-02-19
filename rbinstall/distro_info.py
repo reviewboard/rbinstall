@@ -290,6 +290,7 @@ PACKAGES: _Packages = {
                     'base-devel',
                     'libffi',
                     'libxml2',
+                    'libxslt',
                     'openssl',
                     'perl',
                     'xmlsec',
@@ -299,7 +300,7 @@ PACKAGES: _Packages = {
                 },
             },
 
-            # CentOS/Fedora/RHEL/Rocky Linux
+            # Amazon Linux/CentOS/Fedora/RHEL/Rocky Linux
             {
                 # Common rules for all RPM-based distros.
                 #
@@ -308,6 +309,7 @@ PACKAGES: _Packages = {
                 'match': {
                     'systems': {'Linux'},
                     'distro_families': {
+                        'amzn',
                         'centos',
                         'fedora',
                         'rhel',
@@ -319,6 +321,7 @@ PACKAGES: _Packages = {
                     'gcc-c++',
                     'libffi-devel',
                     'libxml2-devel',
+                    'libxslt-devel',
                     'make',
                     'openssl-devel',
                     'patch',
@@ -407,6 +410,7 @@ PACKAGES: _Packages = {
                     'libjpeg-dev',
                     'libssl-dev',
                     'libxml2-dev',
+                    'libxslt-dev',
                     'libxmlsec1-dev',
                     'libxmlsec1-openssl',
                     'patch',
@@ -433,6 +437,7 @@ PACKAGES: _Packages = {
                     'libffi-devel',
                     'libopenssl-devel',
                     'libxml2-devel',
+                    'libxslt-devel',
                     'python3-devel',
                     'xmlsec1-devel',
                     'xmlsec1-openssl-devel',
@@ -450,6 +455,13 @@ PACKAGES: _Packages = {
                     'pip',
                     'setuptools',
                     'wheel',
+
+                    # This is required for building against local
+                    # xmlsec/libxml2, which avoids crashes and other
+                    # errors at runtime.
+                    '--no-binary',
+                    'lxml',
+                    'lxml',
                 ],
             },
         ],

@@ -11,7 +11,7 @@ import os
 import subprocess
 import shlex
 import sys
-from typing import List, NoReturn, Optional, Sequence
+from typing import List, Mapping, NoReturn, Optional, Sequence
 
 from rich.markup import escape as rich_escape
 from typing_extensions import NotRequired, TypedDict
@@ -85,6 +85,7 @@ def run(
     displayed_command: Optional[List[str]] = None,
     dry_run: bool = False,
     raw: bool = False,
+    env: Mapping[str, str] = None,
 ) -> None:
     """Run an external command.
 
@@ -113,6 +114,9 @@ def run(
         raw (bool, optional):
             Whether to execute with raw output to the terminal.
 
+        env (dict, optional):
+            Extra environment variables for the process.
+
     Raises:
         rbinstall.errors.RunCommandError:
             There was an error running the command.
@@ -130,17 +134,25 @@ def run(
     else:
         capture_command.append(displayed_command)
 
+    if env:
+        env = dict(os.environ, **env)
+    else:
+        env = os.environ
+
     if not dry_run:
         if raw:
             try:
-                subprocess.run(command, check=True)
+                subprocess.run(command,
+                               check=True,
+                               env=env)
             except subprocess.CalledProcessError as e:
                 raise RunCommandError(command=command,
                                       exit_code=e.returncode)
         else:
             with subprocess.Popen(command,
                                   stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT) as p:
+                                  stderr=subprocess.STDOUT,
+                                  env=env) as p:
                 assert p.stdout is not None
 
                 while p.poll() is None:
