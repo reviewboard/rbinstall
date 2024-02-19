@@ -90,7 +90,7 @@ def parse_options(
         default=True,
         help=_(
             'Create a site directory after Review Board is installed. This '
-            'is used for unattended installs.'
+            'is ignored for unattended installs (--noinput).'
         ))
     parser.add_argument(
         '--no-create-sitedir',
@@ -98,7 +98,7 @@ def parse_options(
         default=True,
         help=_(
             "Don't create a site directory after Review Board is installed. "
-            "This is used for unattended installs."
+            "This is always set for unattended installs (--noinput)."
         ))
     parser.add_argument(
         '--sitedir-path',
