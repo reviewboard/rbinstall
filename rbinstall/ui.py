@@ -8,6 +8,8 @@ Version Added:
 from __future__ import annotations
 
 import os
+import re
+import sys
 from gettext import gettext as _
 from typing import Any, Optional, Sequence, TYPE_CHECKING, Tuple, Union
 
@@ -25,6 +27,13 @@ from rich.prompt import (Confirm as RichConfirm,
                          Prompt as RichPrompt)
 from rich.table import Column, Table
 from rich.theme import Theme
+
+try:
+    import termios
+    import tty
+except ImportError:
+    termios = None  # type: ignore
+    tty = None      # type: ignore
 
 if TYPE_CHECKING:
     from rich.prompt import PromptBase
@@ -179,7 +188,7 @@ def init_console(
             'repr.path': 'blue',
             'repr.str': 'blue',
             'rule.line': 'bold reverse green',
-            'rule.text': 'bold reverse green',
+            'rule.text': 'black on green',
             'success': 'green',
             'warning': 'yellow',
         })
@@ -225,11 +234,110 @@ def is_terminal_dark() -> bool:
     """
     try:
         fg, *unused, bg = os.getenv('COLORFGBG', '').split(';')
-    except Exception:
-        return True  # This is a reasonable default.
 
-    # 0=black, 7=light-grey, 15=white.
-    return fg in ('7', '15') and bg == '0'
+        # 0=black, 7=light-grey, 15=white.
+        return fg in ('7', '15') and bg == '0'
+    except Exception:
+        pass
+
+    # Try an xterm-compatible terminal ANSI command for checking the
+    # background color.
+    xterm_bg_info = query_terminal('\033]11;?\a', terminator='\a')
+
+    if xterm_bg_info:
+        # This actually comes in 4-digit R, G, and B values. We're only going
+        # to look at the first digit of each. There's maybe a better way of
+        # calculating dark vs. light mode here, but we're going with what Vim
+        # itself does.
+        m = re.search(
+            r'11;rgb:'
+            r'(?P<red>[0-9a-f]{1,4})/'
+            r'(?P<green>[0-9a-f]{1,4})/'
+            r'(?P<blue>[0-9a-f]{1,4})',
+            xterm_bg_info)
+
+        if m:
+            r = m.group('red')
+            g = m.group('green')
+            b = m.group('blue')
+            max_len = max(len(r), len(g), len(b))
+            scale = 16 ** max_len - 1
+
+            # Normalize these to numeric RGB color codes.
+            r, g, b = (
+                int(int(value.lstrip('0') or '0', 16) / scale * 255)
+                for value in (r, g, b)
+            )
+
+            # Calculate a luma based on the background color.
+            luma = 0.2126 * r + 0.7152 * g + 0.0722 * b
+            luma_pct = (luma / 255) * 100
+
+            return luma_pct < 50
+
+    # Dark backgrounds are a reasonable default.
+    return True
+
+
+def query_terminal(
+    ansi_code: str,
+    *,
+    terminator: str = '\a',
+    max_len: int = 32,
+) -> str:
+    """Query the terminal using ANSI escape codes.
+
+    This can be used to fetch useful information about the terminal, in an
+    effort to better tailor the UI.
+
+    The results are returned as-is, and must be further processed by the
+    caller.
+
+    Version Added:
+        1.1
+
+    Args:
+        ansi_code (str):
+            The ANSI code to write to the terminal.
+
+        terminator (str, optional):
+            The last character in the resulting string, used to indicate that
+            all data has been read.
+
+        max_len (int, optional):
+            The maximum length to read before returning results.
+
+            This is used as a safeguard in case data is coming from stdin but
+            no terminator has been found.
+
+    Returns:
+        str:
+        The resulting data from the terminal query.
+    """
+    if termios is None or tty is None or not os.isatty(sys.stdout.fileno()):
+        return ''
+
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+
+    result = ''
+
+    try:
+        tty.setraw(fd)
+        sys.stdout.write(ansi_code)
+        sys.stdout.flush()
+
+        for i in range(max_len):
+            c = sys.stdin.read(1)
+
+            if c == terminator or not c:
+                break
+
+            result += c
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+
+    return result
 
 
 def print_header(
