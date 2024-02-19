@@ -53,7 +53,8 @@ def main():
         fp.write(base64.b64decode(get_installer_data()))
 
     subprocess.run(
-        [python_path, '-m', 'pip', 'install', '-q', rbinstall_path],
+        [python_path, '-m', 'pip', 'install', '--no-python-version-warning',
+         '--disable-pip-version-check', '-q', rbinstall_path],
         check=True)
 
     print('done')
@@ -69,6 +70,7 @@ def main():
                 os.environ,
                 RBINSTALL_FORCE_SYSTEM_PYTHON_EXE=sys.executable,
             ),
+            stdin=sys.stdin.fileno(),
             check=True)
     except subprocess.CalledProcessError as e:
         sys.exit(e.returncode)
