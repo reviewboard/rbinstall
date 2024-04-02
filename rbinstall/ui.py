@@ -232,17 +232,29 @@ def is_terminal_dark() -> bool:
         bool:
         ``True`` if the terminal is in dark mode. ``False`` if in light mode.
     """
+    from rbinstall.process import debug
+
+    debug('Attempting to determine terminal color configuration...')
+
     try:
         fg, *unused, bg = os.getenv('COLORFGBG', '').split(';')
 
+        debug(f'Got COLOFGBG: Foreground = {fg}, Background = {bg}')
+
         # 0=black, 7=light-grey, 15=white.
-        return fg in ('7', '15') and bg == '0'
+        is_dark = fg in ('7', '15') and bg == '0'
+
+        debug(f'Parsed COLORFGBG dark background result: {is_dark}')
+
+        return is_dark
     except Exception:
         pass
 
     # Try an xterm-compatible terminal ANSI command for checking the
     # background color.
+    debug('Querying terminal for background color...')
     xterm_bg_info = query_terminal('\033]11;?\a', terminator='\a')
+    debug(f'Got terminal result = {xterm_bg_info!r}')
 
     if xterm_bg_info:
         # This actually comes in 4-digit R, G, and B values. We're only going
@@ -273,9 +285,15 @@ def is_terminal_dark() -> bool:
             luma = 0.2126 * r + 0.7152 * g + 0.0722 * b
             luma_pct = (luma / 255) * 100
 
-            return luma_pct < 50
+            is_dark = luma_pct < 50
+
+            debug(f'Queried dark background result: {is_dark}')
+
+            return is_dark
 
     # Dark backgrounds are a reasonable default.
+    debug('Falling back to assuming terminal background is dark.')
+
     return True
 
 

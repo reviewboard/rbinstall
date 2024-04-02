@@ -18,6 +18,7 @@ from typing_extensions import TypedDict
 
 from rbinstall import get_package_version
 from rbinstall.errors import InstallerError
+from rbinstall.process import debug
 
 if TYPE_CHECKING:
     from rbinstall.state import SystemInfo
@@ -94,11 +95,16 @@ def get_package_version_info(
     request.add_header('Accept', 'application/json')
     request.add_header('User-Agent', USER_AGENT)
 
+    debug(f'Fetching package information for "{package_name}" from {url}...')
+
     try:
         try:
             with urlopen(request) as fp:
                 rsp = json.load(fp)
         except HTTPError as e:
+            error_data = e.read()
+            debug(f'Received HTTP error {e.code}: {error_data!r}')
+
             if e.code == 404:
                 return None
 
@@ -129,6 +135,9 @@ def get_package_version_info(
             key=lambda pair: parse_version(pair[0]),
             reverse=True)
 
+        debug(f'Found {len(rsp_releases)} possible releases for '
+              f'"{package_name}".')
+
         for rsp_version, rsp_release in rsp_releases:
             if not rsp_release:
                 continue
@@ -148,6 +157,9 @@ def get_package_version_info(
             if (not requires_python or
                 python_version in SpecifierSet(requires_python)):
                 # This is a compatible version. Return it.
+                debug(f'Found compatible release for "{package_name}": '
+                      f'{parsed_rsp_version}')
+
                 return {
                     'is_latest': parsed_rsp_version == parsed_latest_version,
                     'is_requested':
@@ -157,6 +169,8 @@ def get_package_version_info(
                     'requires_python': requires_python,
                     'version': rsp_version,
                 }
+
+        debug(f'Could not find compatible release for "{package_name}".')
 
         return None
     except Exception as e:

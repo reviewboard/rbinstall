@@ -178,6 +178,8 @@ def get_system_info() -> SystemInfo:
         rbinstall.errors.InstallerError:
             There was an error computing system information.
     """
+    debug('Fetching information on the current system...')
+
     system_info: SystemInfo
     system_install_method: Optional[InstallMethodType]
 
@@ -202,6 +204,8 @@ def get_system_info() -> SystemInfo:
         # information about the Linux distribution. From that, we can
         # determine the default method for installation, and what packages
         # we need to install.
+        debug('Found Linux. Fetching distribution information...')
+
         distro_info = get_linux_distro_info()
 
         if not distro_info:
@@ -212,6 +216,8 @@ def get_system_info() -> SystemInfo:
                 f'another method. See {INSTALLATION_DOCS_URL} for '
                 f'instructions.'
             )
+
+        debug(f'Distribution information = {distro_info!r}')
 
         # Determine the Linux distro families supported by this distro.
         distro_id = distro_info.get('ID')
@@ -229,8 +235,10 @@ def get_system_info() -> SystemInfo:
         debug(f'Linux families = {families_str}')
 
         # Determine the install methods enabled for this distro.
+        debug('Determining the default install method...')
         system_install_method = get_default_linux_install_method(
             families=families)
+        debug(f'Install method = {system_install_method!r}')
 
         if not system_install_method:
             raise InstallerError(
@@ -262,6 +270,8 @@ def get_system_info() -> SystemInfo:
         # This is a macOS system.
         #
         # On macOS, we can use brew to install dependencies.
+        debug('Found macOS. Please note, Brew is required.')
+
         mac_ver = platform.mac_ver()
 
         if not mac_ver[0]:
@@ -353,8 +363,13 @@ def get_linux_distro_info() -> Dict[str, str]:
             '/usr/lib/os-release',
         ]
 
+    debug(f'Checking for an os-release file (considering '
+          f'{os_release_paths!r})')
+
     for path in os_release_paths:
         if os.path.exists(path):
+            debug(f'Parsing {path}...')
+
             with open(path, 'r') as fp:
                 for line in fp.readlines():
                     m = line_re.match(line)

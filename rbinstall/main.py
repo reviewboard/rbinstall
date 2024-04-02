@@ -15,6 +15,7 @@ from typing import Dict, List, Optional, TYPE_CHECKING, Tuple
 
 from rbinstall import get_version_string
 from rbinstall.errors import InstallerError
+from rbinstall.process import debug
 from rbinstall.pypi import get_package_version_info
 from rbinstall.state import get_system_info
 from rbinstall.ui import get_console, init_console
@@ -215,6 +216,8 @@ def get_package_versions(
 
         package_versions[package_name] = version_info
 
+    debug('All package information has been fetched.')
+
     return package_versions
 
 
@@ -237,6 +240,8 @@ def main(
     console = get_console()
 
     try:
+        debug('Setting up the installer console support.')
+
         init_console(allow_color=options.color,
                      allow_interactive=options.interactive)
 
