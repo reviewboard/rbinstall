@@ -18,6 +18,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import textwrap
 import venv
 
 
@@ -63,9 +64,9 @@ def main():
     rbinstall_path = os.path.join(tmp_path, rbinstall_whl_filename)
     python_path = os.path.join(venv_path, 'bin', 'python')
 
-    print('Preparing the Review Board installer... ',
-          end='',
-          flush=True)
+    print('One moment while we prepare the Review Board installer... ')
+    print()
+
     venv.create(venv_path, with_pip=True)
 
     with open(rbinstall_path, 'wb') as fp:
@@ -75,10 +76,20 @@ def main():
         [python_path, '-m', 'pip', 'install', '-q', rbinstall_path],
         check=True)
 
-    print('done')
+    print()
+    print(textwrap.fill(
+        "If you can't immediately see or interact with the installer below, "
+        "please run the following and try again:",
+        initial_indent='NOTE: ',
+        subsequent_indent='      ',
+        width=75))
+    print()
+    print('      $ export RBINSTALL_COLOR=0')
+    print()
+    print('      Contact support@beanbaginc.com if you need help.')
+    print()
     print()
 
-    # TODO: Env-based args? RBINSTALL_EXPERT or stuff?
     try:
         subprocess.run(
             [

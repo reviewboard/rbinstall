@@ -54,17 +54,20 @@ def parse_options(
     parser.add_argument(
         '--no-color',
         action='store_false',
-        default=True,
+        default=(os.environ.get('RBINSTALL_COLOR') != '0'),
         dest='color',
-        help=_('Disable color output in the terminal'))
+        help=_(
+            'Disable color output in the terminal. You can also set '
+            '$RBINSTALL_COLOR=0.'
+        ))
     parser.add_argument(
         '--noinput',
         action='store_false',
         dest='interactive',
-        default=True,
+        default=(os.environ.get('RBINSTALL_INTERACTIVE') != '0'),
         help=_(
             'Run without prompting for any questions. This allows for '
-            'unattended installs.'
+            'unattended installs. You can also set $RBINSTALL_INTERACTIVE=0.'
         ))
     parser.add_argument(
         '--dry-run',
@@ -72,14 +75,18 @@ def parse_options(
         default=(os.environ.get('RBINSTALL_DRY_RUN') == '1'),
         help=_(
             'Whether to perform a dry-run of the installation. No '
-            'installation commands will actually be run.'
+            'installation commands will actually be run. You can also set '
+            '$RBINSTALL_DRY_RUN=1.'
         ))
     parser.add_argument(
         '--debug',
         action='store_true',
         dest='debug',
         default=(os.environ.get('RBINSTALL_DEBUG') == '1'),
-        help=_('Run with additional debug information.'))
+        help=_(
+            'Run with additional debug information. You can also set '
+            '$RBINSTALL_DEBUG=1.'
+        ))
     parser.add_argument(
         '--install-path',
         metavar='PATH',
