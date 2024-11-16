@@ -7,10 +7,13 @@ Version Added:
 # NOTE: This file must be syntactically compatible with Python 3.7+.
 from __future__ import annotations
 
+import fcntl
 import os
 import re
 import sys
+import time
 from gettext import gettext as _
+from select import select
 from typing import Any, Optional, Sequence, TYPE_CHECKING, Tuple, Union
 
 from rich import (get_console,
@@ -253,7 +256,7 @@ def is_terminal_dark() -> bool:
     # Try an xterm-compatible terminal ANSI command for checking the
     # background color.
     debug('Querying terminal for background color...')
-    xterm_bg_info = query_terminal('\033]11;?\a', terminator='\a')
+    xterm_bg_info = query_terminal('\033]11;?\a', terminator='\\')
     debug(f'Got terminal result = {xterm_bg_info!r}')
 
     if xterm_bg_info:
@@ -338,23 +341,29 @@ def query_terminal(
     try:
         fd = sys.stdin.fileno()
         old_settings = termios.tcgetattr(fd)
+        stdin_flags = fcntl.fcntl(fd, fcntl.F_GETFL)
 
         result = ''
 
         try:
             tty.setraw(fd)
+            fcntl.fcntl(fd, fcntl.F_SETFL, stdin_flags | os.O_NONBLOCK)
+
             sys.stdout.write(ansi_code)
             sys.stdout.flush()
 
-            for i in range(max_len):
-                c = sys.stdin.read(1)
+            # Give the terminal time to respond.
+            time.sleep(0.01)
 
-                if c == terminator or not c:
+            while terminator not in result and len(result) < max_len:
+                if sys.stdin not in select([sys.stdin], [], [], 0.5)[0]:
+                    # We timed out. We're done reading.
                     break
 
-                result += c
+                result += sys.stdin.read()
         finally:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+            fcntl.fcntl(fd, fcntl.F_SETFL, stdin_flags)
     except Exception:
         # Something went wrong, so just return an empty string.
         result = ''
