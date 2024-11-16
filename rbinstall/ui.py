@@ -161,7 +161,7 @@ def init_console(
         allow_interactive (bool, optional):
             Whether the UI is allowed to prompt for input.
     """
-    if is_terminal_dark():
+    if not allow_color or is_terminal_dark():
         theme = Theme({
             'command.prompt': 'bold red',
             'command.line': 'white',
