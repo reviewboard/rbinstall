@@ -154,10 +154,15 @@ def match_version(
     def _match(
         version_info: Tuple[_ParsedVersionPart, ...],
     ) -> bool:
+        # Only compare the number of version parts specified in the
+        # match. This allows match_version(9) to match "9.3", "9.0",
+        # etc. by only comparing the major version.
+        match_len = len(matched_version_info)
+
         return op(
             tuple(
                 _ComparedVersionPart(part)
-                for part in version_info
+                for part in version_info[:match_len]
             ),
             tuple(
                 _ComparedVersionPart(part)

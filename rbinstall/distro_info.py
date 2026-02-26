@@ -202,7 +202,7 @@ PACKAGES: _Packages = {
                     'archs': {'x86_64'},
                     'systems': {'Linux'},
                     'distro_ids': {'rhel'},
-                    'distro_version': match_version(9, op=operator.ge),
+                    'distro_version': match_version(9),
                 },
                 'commands': [
                     [
@@ -223,7 +223,7 @@ PACKAGES: _Packages = {
                     'archs': {'aarch64'},
                     'systems': {'Linux'},
                     'distro_ids': {'rhel'},
-                    'distro_version': match_version(9, op=operator.ge),
+                    'distro_version': match_version(9),
                 },
                 'commands': [
                     [
@@ -243,7 +243,7 @@ PACKAGES: _Packages = {
                 'match': {
                     'systems': {'Linux'},
                     'distro_ids': {'rocky'},
-                    'distro_version': match_version(9, op=operator.le),
+                    'distro_version': match_version(9, op=operator.lt),
                 },
                 'commands': [
                     [
@@ -334,7 +334,7 @@ PACKAGES: _Packages = {
             # CentOS 9+
             {
                 'match': {
-                    'systems': {'linux'},
+                    'systems': {'Linux'},
                     'distro_ids': {'centos'},
                     'distro_version': match_version(9, op=operator.ge),
                 },
@@ -350,7 +350,7 @@ PACKAGES: _Packages = {
             # Fedora
             {
                 'match': {
-                    'systems': {'linux'},
+                    'systems': {'Linux'},
                     'distro_ids': {'fedora'},
                 },
                 'packages': [
@@ -365,7 +365,7 @@ PACKAGES: _Packages = {
             # Red Hat Enterprise Linux 9+
             {
                 'match': {
-                    'systems': {'linux'},
+                    'systems': {'Linux'},
                     'distro_ids': {'rhel'},
                     'distro_version': match_version(9, op=operator.ge),
                 },
@@ -381,7 +381,7 @@ PACKAGES: _Packages = {
             # Rocky Linux 9+
             {
                 'match': {
-                    'systems': {'linux'},
+                    'systems': {'Linux'},
                     'distro_ids': {'rocky'},
                     'distro_version': match_version(9, op=operator.ge),
                 },
