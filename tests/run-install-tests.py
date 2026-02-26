@@ -230,6 +230,11 @@ DISTS = {
         'image': 'debian:bookworm',
         'platforms': ['linux/amd64', 'linux/arm64'],
     },
+    'debian:13': {
+        'type': 'debian',
+        'image': 'debian:trixie',
+        'platforms': ['linux/amd64', 'linux/arm64'],
+    },
     'debian:latest': {
         'type': 'debian',
         'image': 'debian:latest',

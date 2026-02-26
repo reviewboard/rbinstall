@@ -39,9 +39,9 @@ The following Linux distributions are directly supported on a default install:
 * Amazon Linux 2023
 * Arch Linux
 * CentOS 9 Stream
-* Debian 11 (Buster)
-* Debian 12 (Bullseye)
-* Debian 13 (Bookworm)
+* Debian 11 (Bullseye)
+* Debian 12 (Bookworm)
+* Debian 13 (Trixie)
 * Fedora 36
 * Fedora 37
 * Fedora 39
