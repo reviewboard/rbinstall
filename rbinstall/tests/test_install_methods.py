@@ -238,8 +238,6 @@ class RunInstallMethodTests(kgb.SpyAgency, TestCase):
             run,
             [
                 '/path/to/venv/bin/pip', 'install',
-                '--disable-pip-version-check',
-                '--no-python-version-warning',
                 'package1', 'package2',
             ])
 
@@ -253,10 +251,8 @@ class RunInstallMethodTests(kgb.SpyAgency, TestCase):
         message = re.escape(
             'There was an error installing one or more packages (package1 '
             'package2). The command that failed was: `/path/to/venv/bin/pip '
-            'install --disable-pip-version-check --no-python-version-warning '
-            'package1 package2`. The error was: Error executing '
-            '`/path/to/venv/bin/pip install --disable-pip-version-check '
-            '--no-python-version-warning package1 package2`: exit code 1'
+            'install package1 package2`. The error was: Error executing '
+            '`/path/to/venv/bin/pip install package1 package2`: exit code 1'
         )
 
         with self.assertRaisesRegex(InstallPackageError, message) as ctx:
@@ -333,8 +329,6 @@ class RunInstallMethodTests(kgb.SpyAgency, TestCase):
             run,
             [
                 '/path/to/venv/bin/pip', 'install',
-                '--disable-pip-version-check',
-                '--no-python-version-warning',
                 'ReviewBoard[package1]', 'ReviewBoard[package2]',
             ])
 
@@ -349,10 +343,8 @@ class RunInstallMethodTests(kgb.SpyAgency, TestCase):
             'There was an error installing one or more packages '
             '(ReviewBoard[package1] ReviewBoard[package2]). The command that '
             'failed was: `/path/to/venv/bin/pip install '
-            '--disable-pip-version-check --no-python-version-warning '
             'ReviewBoard[package1] ReviewBoard[package2]`. The error was: '
             'Error executing `/path/to/venv/bin/pip install '
-            '--disable-pip-version-check --no-python-version-warning '
             'ReviewBoard[package1] ReviewBoard[package2]`: exit code 1'
         )
 
