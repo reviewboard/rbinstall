@@ -17,6 +17,7 @@ from rbinstall.errors import InstallerError
 from rbinstall.install_methods import run_install_method
 from rbinstall.install_steps import get_install_steps
 from rbinstall.process import RunCommandError, join_cmdline, run
+from rbinstall.state import is_eol_distro
 from rbinstall.ui import (ShellCommand,
                           get_console,
                           print_header,
@@ -25,6 +26,7 @@ from rbinstall.ui import (ShellCommand,
                           print_ol,
                           print_paragraphs,
                           print_terms,
+                          print_warning,
                           prompt_confirm,
                           prompt_string,
                           show_progress)
@@ -194,6 +196,14 @@ def _show_intro(
     ])
 
     _show_install_info_table(install_state=install_state)
+
+    if is_eol_distro(install_state['system_info']):
+        print_warning(_(
+            'Your Linux distribution has reached end-of-life and is no '
+            'longer receiving updates. Review Board may not work correctly '
+            'on unsupported distributions. We recommend upgrading to a '
+            'supported distribution.'
+        ))
 
     print_note(_(
         'The version of Python is important! If you need Review Board to use '

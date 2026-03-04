@@ -6,6 +6,8 @@ Version Added:
 
 from __future__ import annotations
 
+from datetime import date
+
 import os
 import platform
 import re
@@ -19,7 +21,8 @@ import kgb
 from rbinstall.errors import InstallerError
 from rbinstall.install_methods import InstallMethodType
 from rbinstall.state import (get_default_linux_install_method,
-                             get_system_info)
+                             get_system_info,
+                             is_eol_distro)
 
 
 class GetSystemInfoTests(kgb.SpyAgency, TestCase):
@@ -287,3 +290,225 @@ class GetDefaultLinuxInstallMethodTests(TestCase):
         self.assertEqual(
             get_default_linux_install_method(families={'rhel'}),
             InstallMethodType.YUM)
+
+
+class TestEOLDistro(TestCase):
+    """Unit tests for is_eol_distro().
+
+    Version Added:
+        1.3
+    """
+
+    # EOL distros
+    def test_with_amzn_2(self) -> None:
+        """Testing is_eol_distro with Amazon Linux 2"""
+        self.assertTrue(is_eol_distro(
+            self._make_system_info('amzn', '2'),
+            now=date(2026, 7, 1)))
+
+    def test_with_amzn_1(self) -> None:
+        """Testing is_eol_distro with Amazon Linux 1"""
+        self.assertTrue(is_eol_distro(
+            self._make_system_info('amzn', '1'),
+            now=date(2026, 7, 1)))
+
+    def test_with_centos_8(self) -> None:
+        """Testing is_eol_distro with CentOS 8"""
+        self.assertTrue(is_eol_distro(
+            self._make_system_info('centos', '8'),
+            now=date(2024, 6, 1)))
+
+    def test_with_centos_7(self) -> None:
+        """Testing is_eol_distro with CentOS 7"""
+        self.assertTrue(is_eol_distro(
+            self._make_system_info('centos', '7'),
+            now=date(2024, 6, 1)))
+
+    def test_with_debian_10(self) -> None:
+        """Testing is_eol_distro with Debian 10"""
+        self.assertTrue(is_eol_distro(
+            self._make_system_info('debian', '10'),
+            now=date(2022, 10, 1)))
+
+    def test_with_debian_9(self) -> None:
+        """Testing is_eol_distro with Debian 9"""
+        self.assertTrue(is_eol_distro(
+            self._make_system_info('debian', '9'),
+            now=date(2022, 10, 1)))
+
+    def test_with_fedora_36(self) -> None:
+        """Testing is_eol_distro with Fedora 36"""
+        self.assertTrue(is_eol_distro(
+            self._make_system_info('fedora', '36'),
+            now=date(2025, 12, 16)))
+
+    def test_with_fedora_39(self) -> None:
+        """Testing is_eol_distro with Fedora 39"""
+        self.assertTrue(is_eol_distro(
+            self._make_system_info('fedora', '39'),
+            now=date(2025, 12, 16)))
+
+    def test_with_ubuntu_18_04(self) -> None:
+        """Testing is_eol_distro with Ubuntu 18.04"""
+        self.assertTrue(is_eol_distro(
+            self._make_system_info('ubuntu', '18.04'),
+            now=date(2023, 6, 1)))
+
+    def test_with_ubuntu_23_10(self) -> None:
+        """Testing is_eol_distro with Ubuntu 23.10"""
+        self.assertTrue(is_eol_distro(
+            self._make_system_info('ubuntu', '23.10'),
+            now=date(2026, 2, 1)))
+
+    def test_with_ubuntu_21_04(self) -> None:
+        """Testing is_eol_distro with Ubuntu 21.04"""
+        self.assertTrue(is_eol_distro(
+            self._make_system_info('ubuntu', '21.04'),
+            now=date(2026, 2, 1)))
+
+    # Non-EOL distros
+    def test_with_amzn_2023(self) -> None:
+        """Testing is_eol_distro with Amazon Linux 2023"""
+        self.assertFalse(is_eol_distro(
+            self._make_system_info('amzn', '2023'),
+            now=date(2029, 1, 1)))
+
+    def test_with_centos_9(self) -> None:
+        """Testing is_eol_distro with CentOS 9"""
+        self.assertFalse(is_eol_distro(
+            self._make_system_info('centos', '9'),
+            now=date(2027, 1, 1)))
+
+    def test_with_debian_12(self) -> None:
+        """Testing is_eol_distro with Debian 12"""
+        self.assertFalse(is_eol_distro(
+            self._make_system_info('debian', '12'),
+            now=date(2026, 1, 1)))
+
+    def test_with_fedora_40(self) -> None:
+        """Testing is_eol_distro with Fedora 40"""
+        self.assertFalse(is_eol_distro(
+            self._make_system_info('fedora', '40'),
+            now=date(2025, 1, 1)))
+
+    def test_with_ubuntu_20_04(self) -> None:
+        """Testing is_eol_distro with Ubuntu 20.04"""
+        self.assertFalse(is_eol_distro(
+            self._make_system_info('ubuntu', '20.04'),
+            now=date(2025, 1, 1)))
+
+    def test_with_ubuntu_22_04(self) -> None:
+        """Testing is_eol_distro with Ubuntu 22.04"""
+        self.assertFalse(is_eol_distro(
+            self._make_system_info('ubuntu', '22.04'),
+            now=date(2027, 1, 1)))
+
+    def test_with_ubuntu_24_04(self) -> None:
+        """Testing is_eol_distro with Ubuntu 24.04"""
+        self.assertFalse(is_eol_distro(
+            self._make_system_info('ubuntu', '24.04'),
+            now=date(2029, 1, 1)))
+
+    def test_with_ubuntu_25_10(self) -> None:
+        """Testing is_eol_distro with Ubuntu 25.10"""
+        self.assertFalse(is_eol_distro(
+            self._make_system_info('ubuntu', '25.10'),
+            now=date(2026, 1, 1)))
+
+    # Boundary conditions
+    def test_with_eol_on_exact_date(self) -> None:
+        """Testing is_eol_distro on the exact EOL date"""
+        self.assertTrue(is_eol_distro(
+            self._make_system_info('debian', '12'),
+            now=date(2026, 6, 10)))
+
+    def test_with_eol_one_day_before(self) -> None:
+        """Testing is_eol_distro one day before the EOL date"""
+        self.assertFalse(is_eol_distro(
+            self._make_system_info('debian', '12'),
+            now=date(2026, 6, 9)))
+
+    # Evergreen distros
+    def test_with_arch(self) -> None:
+        """Testing is_eol_distro with Arch Linux (evergreen)"""
+        self.assertFalse(is_eol_distro(
+            self._make_system_info('arch', '2024.01.01'),
+            now=date(2040, 1, 1)))
+
+    def test_with_opensuse_tumbleweed(self) -> None:
+        """Testing is_eol_distro with openSUSE Tumbleweed (evergreen)"""
+        self.assertFalse(is_eol_distro(
+            self._make_system_info('opensuse-tumbleweed', '20240101'),
+            now=date(2040, 1, 1)))
+
+    # openSUSE Leap
+    def test_with_opensuse_leap_42(self) -> None:
+        """Testing is_eol_distro with openSUSE Leap 42 (mislabeled v14)"""
+        self.assertTrue(is_eol_distro(
+            self._make_system_info('opensuse-leap', '42.3'),
+            now=date(2019, 8, 1)))
+
+    def test_with_opensuse_leap_15_4(self) -> None:
+        """Testing is_eol_distro with openSUSE Leap 15.4"""
+        self.assertTrue(is_eol_distro(
+            self._make_system_info('opensuse-leap', '15.4'),
+            now=date(2025, 1, 1)))
+
+    def test_with_opensuse_leap_15_6(self) -> None:
+        """Testing is_eol_distro with openSUSE Leap 15.6"""
+        self.assertFalse(is_eol_distro(
+            self._make_system_info('opensuse-leap', '15.6'),
+            now=date(2026, 1, 1)))
+
+    # Unknown future version
+    def test_with_unknown_future_version(self) -> None:
+        """Testing is_eol_distro with a future Fedora version not in data"""
+        self.assertFalse(is_eol_distro(
+            self._make_system_info('fedora', '99'),
+            now=date(2040, 1, 1)))
+
+    # Edge cases
+    def test_with_missing_distro_id(self) -> None:
+        """Testing is_eol_distro with missing distro_id"""
+        self.assertFalse(is_eol_distro({
+            'version': '10',
+        }))
+
+    def test_with_missing_version(self) -> None:
+        """Testing is_eol_distro with missing version"""
+        self.assertFalse(is_eol_distro({
+            'distro_id': 'debian',
+        }))
+
+    def test_with_empty_version(self) -> None:
+        """Testing is_eol_distro with empty version"""
+        self.assertFalse(is_eol_distro(
+            self._make_system_info('debian', '')))
+
+    def test_with_unknown_distro(self) -> None:
+        """Testing is_eol_distro with unknown distro"""
+        self.assertFalse(is_eol_distro(
+            self._make_system_info('archlinux', '2024.01.01')))
+
+    def _make_system_info(
+        self,
+        distro_id: str,
+        version: str,
+    ) -> dict:
+        """Return a minimal SystemInfo-like dict for testing.
+
+        Args:
+            distro_id (str):
+                The distribution ID.
+
+            version (str):
+                The version string.
+
+        Returns:
+            dict:
+            A dictionary with ``distro_id`` and ``version`` keys.
+        """
+        return {
+            'distro_id': distro_id,
+            'version': version,
+        }

@@ -166,6 +166,8 @@ def init_console(
             'command.prompt': 'bold red',
             'command.line': 'white',
             'info': 'dim cyan',
+            'eol_warning': 'red',
+            'eol_warning.label': 'bold red',
             'note': 'yellow',
             'note.label': 'bold yellow',
             'progress.description': 'yellow',
@@ -178,6 +180,8 @@ def init_console(
         theme = Theme({
             'command.line': 'black',
             'command.prompt': 'bold red',
+            'eol_warning': 'red',
+            'eol_warning.label': 'bold red',
             'error': 'red',
             'info': 'dim cyan',
             'markdown.item.number': 'bold blue',
@@ -422,6 +426,33 @@ def print_note(
                        Column(style='note'),
                        padding=1)
     table.add_row(_('NOTE:'), '\n\n'.join(paragraphs))
+
+    console.print()
+    console.print(table)
+    console.print()
+
+
+def print_warning(
+    paragraphs: Union[str, Sequence[str]],
+) -> None:
+    """Print a warning admonition to the console.
+
+    Version Added:
+        1.3
+
+    Args:
+        paragraphs (str or list of str):
+            The text or paragraphs of text to contain in the note body.
+    """
+    console = get_console()
+
+    if isinstance(paragraphs, str):
+        paragraphs = [paragraphs]
+
+    table = Table.grid(Column(style='eol_warning.label'),
+                       Column(style='eol_warning'),
+                       padding=1)
+    table.add_row(_(':warning:  WARNING:'), '\n\n'.join(paragraphs))
 
     console.print()
     console.print(table)

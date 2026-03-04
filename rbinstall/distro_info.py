@@ -8,12 +8,51 @@ Version Added:
 from __future__ import annotations
 
 import operator
-from typing import Dict, List, Set
+from datetime import date
+from typing import Dict, List, Mapping, Set, TYPE_CHECKING
 
-from typing_extensions import NotRequired, TypeAlias, TypedDict
+from typing_extensions import Literal, NotRequired, TypeAlias, TypedDict
 
 from rbinstall.install_methods import InstallMethodType
 from rbinstall.versioning import VersionMatchFunc, match_version
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+
+#: Known distro IDs.
+#:
+#: Version Added:
+#:     1.3
+DistroID: TypeAlias = Literal[
+    'amzn',
+    'arch',
+    'centos',
+    'debian',
+    'fedora',
+    'opensuse-leap',
+    'opensuse-tumbleweed',
+    'rhel',
+    'rocky',
+    'ubuntu',
+]
+
+
+#: Known distro families.
+#:
+#: Version Added:
+#:     1.3
+DistroFamily: TypeAlias = Literal[
+    'amzn',
+    'arch',
+    'centos',
+    'debian',
+    'fedora',
+    'opensuse',
+    'rhel',
+    'rocky',
+    'ubuntu',
+]
 
 
 class _PackageCandidateMatch(TypedDict):
@@ -27,10 +66,10 @@ class _PackageCandidateMatch(TypedDict):
     archs: NotRequired[Set[str]]
 
     #: Any Linux distribution families that must be matched.
-    distro_families: NotRequired[Set[str]]
+    distro_families: NotRequired[Set[DistroFamily]]
 
     #: Any Linux distribution IDs that must be matched.
-    distro_ids: NotRequired[Set[str]]
+    distro_ids: NotRequired[Set[DistroID]]
 
     #: A callable for determining if a Linux distribution version matches.
     distro_version: NotRequired[VersionMatchFunc]
@@ -825,6 +864,125 @@ PACKAGES: _Packages = {
                     'https://pysvn.reviewboard.org',
                 ],
             },
+        ],
+    },
+}
+
+
+class _DistroInfo(TypedDict):
+    """Information about a Linux distribution.
+
+    Version Added:
+        1.3
+    """
+
+    #: The name of the distro.
+    name: str
+
+    #: End-of-life information for various versions.
+    #:
+    #: This is an *ordered* list of (version match, tuple) entries. To
+    #: determine if a given distro version is end of life, this list will be
+    #: scanned in order. If the version func matches, the date will be compared
+    #: against the current date to make a determination. If there are no
+    #: matches, the version will be assumed to be currently maintained.
+    eol: Sequence[tuple[VersionMatchFunc, date]]
+
+
+_DistroInfos: TypeAlias = Mapping[str, _DistroInfo]
+
+
+#: Information about known Linux distributions.
+#:
+#: Version Added:
+#:    1.3
+DISTROS: _DistroInfos = {
+    'amzn': {
+        'name': 'Amazon Linux',
+        'eol': [
+            (match_version(2, op=operator.le), date(2026, 6, 30)),
+            (match_version(2023), date(2029, 6, 30)),
+        ],
+    },
+    'arch': {
+        'name': 'Arch Linux',
+        'eol': [
+            # Arch is evergreen.
+        ],
+    },
+    'centos': {
+        'name': 'CentOS',
+        'eol': [
+            (match_version(8, op=operator.le), date(2024, 5, 31)),
+            (match_version(9), date(2027, 5, 31)),
+            (match_version(10), date(2030, 1, 1)),
+        ],
+    },
+    'debian': {
+        'name': 'Debian',
+        'eol': [
+            (match_version(10, op=operator.le), date(2022, 9, 10)),
+            (match_version(11), date(2024, 8, 14)),
+            (match_version(12), date(2026, 6, 10)),
+            (match_version(13), date(2028, 8, 9)),
+        ],
+    },
+    'fedora': {
+        'name': 'Fedora Linux',
+        'eol': [
+            (match_version(41, op=operator.le), date(2025, 12, 15)),
+            (match_version(42), date(2026, 5, 13)),
+            (match_version(43), date(2026, 12, 9)),
+        ],
+    },
+    'opensuse-leap': {
+        'name': 'openSUSE Leap',
+        'eol': [
+            # openSUSE Leap 14 was mistakenly labeled version 42.
+            (match_version(42), date(2019, 7, 1)),
+
+            # openSUSE Leap 15 has a bunch of older versions that we don't
+            # care to list individually.
+            (match_version(15, 5, op=operator.le), date(2024, 12, 31)),
+            (match_version(15, 6), date(2026, 4, 30)),
+            (match_version(16), date(2027, 10, 31)),
+        ],
+    },
+    'opensuse-tumbleweed': {
+        'name': 'openSUSE Tumbleweed',
+        'eol': [
+            # Tumbleweed is evergreen.
+        ],
+    },
+    'rhel': {
+        'name': 'Red Hat Enterprise Linux',
+        'eol': [
+            (match_version(8, op=operator.le), date(2029, 5, 31)),
+            (match_version(9), date(2032, 5, 31)),
+            (match_version(10), date(2035, 5, 31)),
+        ],
+    },
+    'rocky': {
+        'name': 'Rocky Linux',
+        'eol': [
+            (match_version(8, op=operator.le), date(2029, 5, 31)),
+            (match_version(9), date(2032, 5, 31)),
+            (match_version(10), date(2035, 5, 31)),
+        ],
+    },
+    'ubuntu': {
+        'name': 'Ubuntu',
+        'eol': [
+            # LTS releases. These must come first.
+            (match_version(18, 4, op=operator.le), date(2023, 5, 31)),
+            (match_version(20, 4), date(2025, 5, 31)),
+            (match_version(22, 4), date(2027, 4, 1)),
+            (match_version(24, 4), date(2029, 5, 31)),
+
+            # Non-LTS releases. The most recent one is listed first, and then
+            # the last entry here should catch everything older.
+            (match_version(25, 10), date(2026, 6, 1)),
+            (match_version(25, 4, op=operator.le), date(2026, 1, 17)),
         ],
     },
 }

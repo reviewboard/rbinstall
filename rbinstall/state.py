@@ -13,15 +13,20 @@ import re
 import subprocess
 import sys
 import sysconfig
+from datetime import datetime, timezone
 from typing import Dict, List, Optional, Set, TYPE_CHECKING, Tuple
 
 from typing_extensions import NotRequired, TypedDict
 
+from rbinstall.distro_info import DISTROS
 from rbinstall.errors import InstallerError
 from rbinstall.install_methods import InstallMethodType
 from rbinstall.process import debug
+from rbinstall.versioning import parse_version
 
 if TYPE_CHECKING:
+    from datetime import date
+
     from rbinstall.install_steps import InstallSteps
     from rbinstall.pypi import PackageVersionInfo
 
@@ -145,6 +150,51 @@ class InstallState(TypedDict):
 
     #: The path to :command:`python` in the destination virtual environment.
     venv_python_exe: str
+
+
+def is_eol_distro(
+    system_info: SystemInfo,
+    *,
+    now: Optional[date] = None,
+) -> bool:
+    """Return whether the system is running an end-of-life distribution.
+
+    Version Added:
+        1.3
+
+    Args:
+        system_info (SystemInfo):
+            The system information to check.
+
+        now (datetime.date, optional):
+            The current date to compare against. Defaults to the current
+            UTC date.
+
+    Returns:
+        bool:
+        ``True`` if the distribution is end-of-life. ``False`` otherwise.
+    """
+    distro_id = system_info.get('distro_id')
+    distro_version = system_info.get('version', '')
+
+    if not distro_id or not distro_version:
+        return False
+
+    distro_info = DISTROS.get(distro_id)
+
+    if not distro_info:
+        return False
+
+    version = parse_version(distro_version)
+
+    if now is None:
+        now = datetime.now(timezone.utc).date()
+
+    for version_match, eol_date in distro_info['eol']:
+        if version_match(version):
+            return now >= eol_date
+
+    return False
 
 
 def get_system_info() -> SystemInfo:
