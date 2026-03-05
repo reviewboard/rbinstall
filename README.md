@@ -43,7 +43,8 @@ The following Linux distributions are directly supported on a default install:
 * Debian 11 (Bullseye)
 * Debian 12 (Bookworm)
 * Debian 13 (Trixie)
-* Fedora 40
+* Fedora 42
+* Fedora 43
 * openSUSE Tumbleweed
 * Red Hat Enterprise Linux 9
 * Rocky Linux 9
@@ -65,10 +66,7 @@ The following Linux distributions are end-of-life, but are known to work:
 * CentOS 8
 * CentOS 8 Stream
 * Debian 10
-* Fedora 36
-* Fedora 37
-* Fedora 38
-* Fedora 39
+* Fedora 36-41
 * Ubuntu 18.04 LTS (requires a newer Python, see below)
 * Ubuntu 20.04 LTS
 * Other non-LTS Ubuntu versions.

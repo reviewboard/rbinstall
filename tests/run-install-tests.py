@@ -293,15 +293,38 @@ DISTS = {
         'image': 'fedora:40',
         'platforms': ['linux/amd64', 'linux/arm64'],
     },
+    'fedora:41': {
+        'type': 'fedora',
+        'image': 'fedora:40',
+        'platforms': ['linux/amd64', 'linux/arm64'],
+    },
+    'fedora:42': {
+        'type': 'fedora',
+        'image': 'fedora:40',
+        'platforms': ['linux/amd64', 'linux/arm64'],
+    },
+    'fedora:43': {
+        'type': 'fedora',
+        'image': 'fedora:40',
+        'platforms': ['linux/amd64', 'linux/arm64'],
+    },
     'fedora:latest': {
         'type': 'fedora',
         'image': 'fedora:latest',
         'platforms': ['linux/amd64', 'linux/arm64'],
+
+        # Fedora latest currently ships Python 3.14, which Review Board
+        # does not yet support.
+        'expect_success': False,
     },
     'fedora:rawhide': {
         'type': 'fedora',
         'image': 'fedora:rawhide',
         'platforms': ['linux/amd64', 'linux/arm64'],
+
+        # Fedora Rawhide currently ships Python 3.14, which Review Board
+        # does not yet support.
+        'expect_success': False,
     },
 
     # openSUSE

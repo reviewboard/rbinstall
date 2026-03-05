@@ -1427,6 +1427,258 @@ class GetInstallSteps(TestCase):
                 *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
+    def test_with_fedora_41_x86_64(self) -> None:
+        """Testing get_install_steps with Fedora 41 (x86_64)"""
+        install_state = self.create_install_state(
+            arch='x86_64',
+            distro_id='fedora',
+            distro_families={
+                'fedora',
+            },
+            version='41')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.YUM,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'gcc',
+                        'gcc-c++',
+                        'libffi-devel',
+                        'libxml2-devel',
+                        'libxslt-devel',
+                        'make',
+                        'openssl-devel',
+                        'patch',
+                        'perl',
+                        'python3-devel',
+                        'libtool-ltdl-devel',
+                        'xmlsec1-devel',
+                        'xmlsec1-openssl-devel',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'mariadb-connector-c-devel',
+                        'subversion',
+                        'subversion-devel',
+                    ],
+                },
+                *self.COMMON_LINUX_X86_STEPS,
+            ])
+
+    def test_with_fedora_41_aarch64(self) -> None:
+        """Testing get_install_steps with Fedora 41 (aarch64)"""
+        install_state = self.create_install_state(
+            arch='aarch64',
+            distro_id='fedora',
+            distro_families={
+                'fedora',
+            },
+            version='41')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.YUM,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'gcc',
+                        'gcc-c++',
+                        'libffi-devel',
+                        'libxml2-devel',
+                        'libxslt-devel',
+                        'make',
+                        'openssl-devel',
+                        'patch',
+                        'perl',
+                        'python3-devel',
+                        'libtool-ltdl-devel',
+                        'xmlsec1-devel',
+                        'xmlsec1-openssl-devel',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'mariadb-connector-c-devel',
+                        'subversion',
+                        'subversion-devel',
+                    ],
+                },
+                *self.COMMON_LINUX_ARM64_STEPS,
+            ])
+
+    def test_with_fedora_42_x86_64(self) -> None:
+        """Testing get_install_steps with Fedora 42 (x86_64)"""
+        install_state = self.create_install_state(
+            arch='x86_64',
+            distro_id='fedora',
+            distro_families={
+                'fedora',
+            },
+            version='42')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.YUM,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'gcc',
+                        'gcc-c++',
+                        'libffi-devel',
+                        'libxml2-devel',
+                        'libxslt-devel',
+                        'make',
+                        'openssl-devel',
+                        'patch',
+                        'perl',
+                        'python3-devel',
+                        'libtool-ltdl-devel',
+                        'xmlsec1-devel',
+                        'xmlsec1-openssl-devel',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'mariadb-connector-c-devel',
+                        'subversion',
+                        'subversion-devel',
+                    ],
+                },
+                *self.COMMON_LINUX_X86_STEPS,
+            ])
+
+    def test_with_fedora_42_aarch64(self) -> None:
+        """Testing get_install_steps with Fedora 42 (aarch64)"""
+        install_state = self.create_install_state(
+            arch='aarch64',
+            distro_id='fedora',
+            distro_families={
+                'fedora',
+            },
+            version='42')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.YUM,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'gcc',
+                        'gcc-c++',
+                        'libffi-devel',
+                        'libxml2-devel',
+                        'libxslt-devel',
+                        'make',
+                        'openssl-devel',
+                        'patch',
+                        'perl',
+                        'python3-devel',
+                        'libtool-ltdl-devel',
+                        'xmlsec1-devel',
+                        'xmlsec1-openssl-devel',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'mariadb-connector-c-devel',
+                        'subversion',
+                        'subversion-devel',
+                    ],
+                },
+                *self.COMMON_LINUX_ARM64_STEPS,
+            ])
+
+    def test_with_fedora_43_x86_64(self) -> None:
+        """Testing get_install_steps with Fedora 43 (x86_64)"""
+        install_state = self.create_install_state(
+            arch='x86_64',
+            distro_id='fedora',
+            distro_families={
+                'fedora',
+            },
+            version='43')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.YUM,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'gcc',
+                        'gcc-c++',
+                        'libffi-devel',
+                        'libxml2-devel',
+                        'libxslt-devel',
+                        'make',
+                        'openssl-devel',
+                        'patch',
+                        'perl',
+                        'python3-devel',
+                        'libtool-ltdl-devel',
+                        'xmlsec1-devel',
+                        'xmlsec1-openssl-devel',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'mariadb-connector-c-devel',
+                        'subversion',
+                        'subversion-devel',
+                    ],
+                },
+                *self.COMMON_LINUX_X86_STEPS,
+            ])
+
+    def test_with_fedora_43_aarch64(self) -> None:
+        """Testing get_install_steps with Fedora 43 (aarch64)"""
+        install_state = self.create_install_state(
+            arch='aarch64',
+            distro_id='fedora',
+            distro_families={
+                'fedora',
+            },
+            version='43')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.YUM,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'gcc',
+                        'gcc-c++',
+                        'libffi-devel',
+                        'libxml2-devel',
+                        'libxslt-devel',
+                        'make',
+                        'openssl-devel',
+                        'patch',
+                        'perl',
+                        'python3-devel',
+                        'libtool-ltdl-devel',
+                        'xmlsec1-devel',
+                        'xmlsec1-openssl-devel',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'mariadb-connector-c-devel',
+                        'subversion',
+                        'subversion-devel',
+                    ],
+                },
+                *self.COMMON_LINUX_ARM64_STEPS,
+            ])
+
     def test_with_macos_brew_x86_64(self) -> None:
         """Testing get_install_steps with macOS using Brew (x86_64)"""
         install_state = self.create_install_state(
