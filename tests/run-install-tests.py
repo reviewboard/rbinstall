@@ -400,6 +400,11 @@ DISTS = {
         'image': 'rockylinux:9',
         'platforms': ['linux/amd64', 'linux/arm64'],
     },
+    'rockylinux:10': {
+        'type': 'rockylinux',
+        'image': 'rockylinux:9',
+        'platforms': ['linux/amd64', 'linux/arm64'],
+    },
 
     # Ubuntu Linux
     'ubuntu:18.04': {
