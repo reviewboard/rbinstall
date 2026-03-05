@@ -14,7 +14,7 @@ from typing import Dict, List, Mapping, Set, TYPE_CHECKING
 from typing_extensions import Literal, NotRequired, TypeAlias, TypedDict
 
 from rbinstall.install_methods import InstallMethodType
-from rbinstall.versioning import VersionMatchFunc, match_version
+from rbinstall.versioning import NO_VERSION, VersionMatchFunc, match_version
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -496,7 +496,7 @@ PACKAGES: _Packages = {
                 },
             },
 
-            # Debian/Ubuntu
+            # Debian 10-13, Ubuntu
             {
                 'match': {
                     'systems': {'Linux'},
@@ -523,6 +523,25 @@ PACKAGES: _Packages = {
                 'set_flags': {
                     'has_xmlsec': True,
                 },
+            },
+
+            # Debian testing/unstable (no version number) renamed
+            # libxmlsec1-openssl to libxmlsec1-openssl1.
+            {
+                'match': {
+                    'systems': {'Linux'},
+                    'distro_families': {
+                        'debian',
+                    },
+                    'distro_version': match_version(NO_VERSION),
+                },
+                'install_method': InstallMethodType.APT,
+                'skip_packages': [
+                    'libxmlsec1-openssl',
+                ],
+                'packages': [
+                    'libxmlsec1-openssl1',
+                ],
             },
 
             # openSUSE

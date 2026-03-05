@@ -9,13 +9,32 @@ from __future__ import annotations
 
 import operator
 from functools import partialmethod
-from typing import Any, Callable, List, Tuple, TypeVar, Union
+from typing import Any, Callable, List, Tuple, TypeVar, Union, cast
 
 from typing_extensions import TypeAlias
 
 
 _ParsedVersionPart: TypeAlias = Union[int, str]
 _ParsedVersionPartT = TypeVar('_ParsedVersionPartT', int, str)
+
+
+class _NoVersionType:
+    """Sentinel type indicating a distro has no version information.
+
+    Version Added:
+        1.3
+    """
+
+    def __repr__(self) -> str:
+        return 'NO_VERSION'
+
+
+#: Sentinel for matching distributions with no version information
+#: (e.g., Debian testing/unstable).
+#:
+#: Version Added:
+#:     1.3
+NO_VERSION = _NoVersionType()
 
 
 class _ComparedVersionPart:
@@ -114,6 +133,9 @@ def parse_version(
     """
     part: _ParsedVersionPart
 
+    if not version:
+        return ()
+
     info: List[_ParsedVersionPart] = []
 
     for part in version.split('.'):
@@ -128,9 +150,9 @@ def parse_version(
 
 
 def match_version(
-    *matched_version_info: _ParsedVersionPart,
-    op: Callable[[Tuple[_ComparedVersionPart, ...],
-                  Tuple[_ComparedVersionPart, ...]], bool] = operator.eq,
+    *matched_version_info: _ParsedVersionPart | _NoVersionType,
+    op: Callable[[tuple[_ComparedVersionPart, ...],
+                  tuple[_ComparedVersionPart, ...]], bool] = operator.eq,
 ) -> VersionMatchFunc:
     """Match a computed version to an expected version.
 
@@ -152,12 +174,22 @@ def match_version(
         The version comparator.
     """
     def _match(
-        version_info: Tuple[_ParsedVersionPart, ...],
+        version_info: tuple[_ParsedVersionPart, ...],
     ) -> bool:
+        # If matching against NO_VERSION, check whether the distro has
+        # no version information (an empty version tuple).
+        if (len(matched_version_info) == 1 and
+            matched_version_info[0] is NO_VERSION):
+            return version_info == ()
+
         # Only compare the number of version parts specified in the
         # match. This allows match_version(9) to match "9.3", "9.0",
         # etc. by only comparing the major version.
-        match_len = len(matched_version_info)
+        #
+        # At this point, matched_version_info only contains
+        # _ParsedVersionPart values (NO_VERSION was handled above).
+        matched = cast(Tuple[_ParsedVersionPart, ...], matched_version_info)
+        match_len = len(matched)
 
         return op(
             tuple(
@@ -166,7 +198,7 @@ def match_version(
             ),
             tuple(
                 _ComparedVersionPart(part)
-                for part in matched_version_info
+                for part in matched
             ))
 
     return _match

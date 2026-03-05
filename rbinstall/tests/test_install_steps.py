@@ -1049,6 +1049,88 @@ class GetInstallSteps(TestCase):
                 *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
+    def test_with_debian_testing_x86_64(self) -> None:
+        """Testing get_install_steps with Debian testing (x86_64)"""
+        install_state = self.create_install_state(
+            arch='x86_64',
+            distro_id='debian',
+            distro_families={
+                'debian',
+            },
+            version='')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.APT,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'build-essential',
+                        'libffi-dev',
+                        'libjpeg-dev',
+                        'libssl-dev',
+                        'libxml2-dev',
+                        'libxslt-dev',
+                        'libxmlsec1-dev',
+                        'patch',
+                        'pkg-config',
+                        'python3-dev',
+                        'python3-pip',
+                        'libxmlsec1-openssl1',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'libmariadb-dev',
+                        'subversion',
+                        'libsvn-dev',
+                    ],
+                },
+                *self.COMMON_LINUX_X86_STEPS,
+            ])
+
+    def test_with_debian_testing_aarch64(self) -> None:
+        """Testing get_install_steps with Debian testing (aarch64)"""
+        install_state = self.create_install_state(
+            arch='aarch64',
+            distro_id='debian',
+            distro_families={
+                'debian',
+            },
+            version='')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.APT,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'build-essential',
+                        'libffi-dev',
+                        'libjpeg-dev',
+                        'libssl-dev',
+                        'libxml2-dev',
+                        'libxslt-dev',
+                        'libxmlsec1-dev',
+                        'patch',
+                        'pkg-config',
+                        'python3-dev',
+                        'python3-pip',
+                        'libxmlsec1-openssl1',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'libmariadb-dev',
+                        'subversion',
+                        'libsvn-dev',
+                    ],
+                },
+                *self.COMMON_LINUX_ARM64_STEPS,
+            ])
+
     def test_with_fedora_36_aarch64(self) -> None:
         """Testing get_install_steps with Fedora 36 (aarch64)"""
         install_state = self.create_install_state(
