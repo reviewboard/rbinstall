@@ -1825,6 +1825,100 @@ class GetInstallSteps(TestCase):
                 *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
+    def test_with_opensuse_leap_16_x86_64(self) -> None:
+        """Testing get_install_steps with openSUSE Leap 16 (x86_64)"""
+        install_state = self.create_install_state(
+            arch='x86_64',
+            distro_id='opensuse-leap',
+            distro_families={
+                'opensuse',
+                'opensuse-leap',
+                'suse',
+            },
+            version='6.0')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'install_method': InstallMethodType.SHELL,
+                    'name': 'Setting up support for packages',
+                    'state': [
+                        'zypper', 'install', '-y', '-t', 'pattern',
+                        'devel_basis',
+                    ],
+                },
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.ZYPPER,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'gcc-c++',
+                        'libffi-devel',
+                        'libopenssl-devel',
+                        'libxml2-devel',
+                        'libxslt-devel',
+                        'python3-devel',
+                        'xmlsec1-devel',
+                        'xmlsec1-openssl-devel',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'libmariadb-devel',
+                        'subversion',
+                        'subversion-devel',
+                    ],
+                },
+                *self.COMMON_LINUX_X86_STEPS,
+            ])
+
+    def test_with_opensuse_leap_16_aarch64(self) -> None:
+        """Testing get_install_steps with openSUSE Leap 16 (aarch64)"""
+        install_state = self.create_install_state(
+            arch='aarch64',
+            distro_id='opensuse-leap',
+            distro_families={
+                'opensuse',
+                'opensuse-leap',
+                'suse',
+            },
+            version='6.0')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'install_method': InstallMethodType.SHELL,
+                    'name': 'Setting up support for packages',
+                    'state': [
+                        'zypper', 'install', '-y', '-t', 'pattern',
+                        'devel_basis',
+                    ],
+                },
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.ZYPPER,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'gcc-c++',
+                        'libffi-devel',
+                        'libopenssl-devel',
+                        'libxml2-devel',
+                        'libxslt-devel',
+                        'python3-devel',
+                        'xmlsec1-devel',
+                        'xmlsec1-openssl-devel',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'libmariadb-devel',
+                        'subversion',
+                        'subversion-devel',
+                    ],
+                },
+                *self.COMMON_LINUX_ARM64_STEPS,
+            ])
+
     def test_with_opensuse_tumbleweed_x86_64(self) -> None:
         """Testing get_install_steps with openSUSE Tumbleweed (x86_64)"""
         install_state = self.create_install_state(

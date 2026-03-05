@@ -45,6 +45,7 @@ The following Linux distributions are directly supported on a default install:
 * Debian 13 (Trixie)
 * Fedora 42
 * Fedora 43
+* openSUSE Leap 16
 * openSUSE Tumbleweed
 * Red Hat Enterprise Linux 9
 * Rocky Linux 9

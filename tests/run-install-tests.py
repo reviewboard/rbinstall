@@ -337,11 +337,23 @@ DISTS = {
             'RUN zypper install -y python39 python39-devel',
         ],
     },
+    'opensuse-leap:16': {
+        'type': 'opensuse',
+        'image': 'opensuse/leap:15',
+        'platforms': ['linux/amd64', 'linux/arm64'],
+        'python_exe': 'python3.9',
+        'setup_lines': [
+            'RUN zypper install -y python39 python39-devel',
+        ],
+    },
     'opensuse-leap:latest': {
         'type': 'opensuse',
         'image': 'opensuse/leap:latest',
         'platforms': ['linux/amd64', 'linux/arm64'],
-        'expect_success': False,
+        'python_exe': 'python3.9',
+        'setup_lines': [
+            'RUN zypper install -y python39 python39-devel',
+        ],
     },
     'opensuse-tumbleweed:latest': {
         'type': 'opensuse',
