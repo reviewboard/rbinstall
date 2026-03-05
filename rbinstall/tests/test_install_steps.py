@@ -2251,6 +2251,130 @@ class GetInstallSteps(TestCase):
                 *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
+    def test_with_rhel_10_x86_64(self) -> None:
+        """Testing get_install_steps with RHEL 10 (x86_64)"""
+        install_state = self.create_install_state(
+            arch='x86_64',
+            distro_id='rhel',
+            distro_families={
+                'fedora',
+                'rhel',
+            },
+            version='10.1')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'install_method': InstallMethodType.SHELL,
+                    'name': 'Setting up support for packages',
+                    'state': [
+                        'subscription-manager',
+                        'repos',
+                        '--enable',
+                        'codeready-builder-for-rhel-10-x86_64-rpms',
+                    ],
+                },
+                {
+                    'install_method': InstallMethodType.SHELL,
+                    'name': 'Setting up support for packages',
+                    'state': [
+                        'dnf', 'install', '-y',
+                        ('https://dl.fedoraproject.org/pub/epel/'
+                         'epel-release-latest-10.noarch.rpm'),
+                    ],
+                },
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.YUM,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'gcc',
+                        'gcc-c++',
+                        'libffi-devel',
+                        'libxml2-devel',
+                        'libxslt-devel',
+                        'make',
+                        'openssl-devel',
+                        'patch',
+                        'perl',
+                        'python3-devel',
+                        'libtool-ltdl-devel',
+                        'xmlsec1-devel',
+                        'xmlsec1-openssl-devel',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'mariadb-connector-c-devel',
+                        'subversion',
+                        'subversion-devel',
+                    ],
+                },
+                *self.COMMON_LINUX_X86_STEPS,
+            ])
+
+    def test_with_rhel_10_aarch64(self) -> None:
+        """Testing get_install_steps with RHEL 10 (aarch64)"""
+        install_state = self.create_install_state(
+            arch='aarch64',
+            distro_id='rhel',
+            distro_families={
+                'fedora',
+                'rhel',
+            },
+            version='10.1')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'install_method': InstallMethodType.SHELL,
+                    'name': 'Setting up support for packages',
+                    'state': [
+                        'subscription-manager',
+                        'repos',
+                        '--enable',
+                        'codeready-builder-for-rhel-10-aarch64-rpms',
+                    ],
+                },
+                {
+                    'install_method': InstallMethodType.SHELL,
+                    'name': 'Setting up support for packages',
+                    'state': [
+                        'dnf', 'install', '-y',
+                        ('https://dl.fedoraproject.org/pub/epel/'
+                         'epel-release-latest-10.noarch.rpm'),
+                    ],
+                },
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.YUM,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'gcc',
+                        'gcc-c++',
+                        'libffi-devel',
+                        'libxml2-devel',
+                        'libxslt-devel',
+                        'make',
+                        'openssl-devel',
+                        'patch',
+                        'perl',
+                        'python3-devel',
+                        'libtool-ltdl-devel',
+                        'xmlsec1-devel',
+                        'xmlsec1-openssl-devel',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'mariadb-connector-c-devel',
+                        'subversion',
+                        'subversion-devel',
+                    ],
+                },
+                *self.COMMON_LINUX_ARM64_STEPS,
+            ])
+
     def test_with_rocky_linux_8_x86_64(self) -> None:
         """Testing get_install_steps with Rocky Linux 8 (x86_64)"""
         install_state = self.create_install_state(

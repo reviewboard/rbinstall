@@ -298,6 +298,48 @@ PACKAGES: _Packages = {
                 ],
             },
 
+            # Red Hat Enterprise Linux 10 (x86)
+            {
+                'match': {
+                    'archs': {'x86_64'},
+                    'systems': {'Linux'},
+                    'distro_ids': {'rhel'},
+                    'distro_version': match_version(10),
+                },
+                'commands': [
+                    [
+                        'subscription-manager', 'repos', '--enable',
+                        'codeready-builder-for-rhel-10-x86_64-rpms',
+                    ],
+                    [
+                        'dnf', 'install', '-y',
+                        ('https://dl.fedoraproject.org/pub/epel/'
+                         'epel-release-latest-10.noarch.rpm'),
+                    ],
+                ],
+            },
+
+            # Red Hat Enterprise Linux 10 (ARM)
+            {
+                'match': {
+                    'archs': {'aarch64'},
+                    'systems': {'Linux'},
+                    'distro_ids': {'rhel'},
+                    'distro_version': match_version(10),
+                },
+                'commands': [
+                    [
+                        'subscription-manager', 'repos', '--enable',
+                        'codeready-builder-for-rhel-10-aarch64-rpms',
+                    ],
+                    [
+                        'dnf', 'install', '-y',
+                        ('https://dl.fedoraproject.org/pub/epel/'
+                         'epel-release-latest-10.noarch.rpm'),
+                    ],
+                ],
+            },
+
             # Rocky Linux 8
             {
                 'match': {

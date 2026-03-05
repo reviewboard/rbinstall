@@ -361,7 +361,7 @@ DISTS = {
         'platforms': ['linux/amd64', 'linux/arm64'],
     },
 
-    # Red Hat Linux Enterprise
+    # Red Hat Enterprise Linux
     'rhel-ubi8': {
         'type': 'rhel',
         'image': 'redhat/ubi8',
@@ -375,6 +375,12 @@ DISTS = {
     'rhel-ubi9': {
         'type': 'rhel',
         'image': 'redhat/ubi9',
+        'platforms': ['linux/amd64', 'linux/arm64'],
+    },
+
+    'rhel-ubi10': {
+        'type': 'rhel',
+        'image': 'redhat/ubi10',
         'platforms': ['linux/amd64', 'linux/arm64'],
     },
 

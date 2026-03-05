@@ -48,6 +48,7 @@ The following Linux distributions are directly supported on a default install:
 * openSUSE Leap 16
 * openSUSE Tumbleweed
 * Red Hat Enterprise Linux 9
+* Red Hat Enterprise Linux 10
 * Rocky Linux 9
 * Ubuntu 22.04 LTS
 * Ubuntu 23.10
