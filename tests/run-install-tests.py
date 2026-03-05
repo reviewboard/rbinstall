@@ -16,25 +16,24 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from configparser import ConfigParser
 from dataclasses import dataclass
 from enum import Enum
 from itertools import chain
-from typing import Any, Dict, Iterator, List, Optional
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
+from rich import box, print
+from rich.live import Live
+from rich.spinner import Spinner
+from rich.table import Table
+from rich.text import Text
 
-if sys.stdout.isatty():
-    GREEN = '\033[0;32m'
-    RED = '\033[0;31m'
-    YELLOW = '\033[1;33m'
-    RESET = '\033[0m'
-else:
-    GREEN = ''
-    RED = ''
-    YELLOW = ''
-    RESET = ''
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator, Mapping, Sequence
+    from typing import Any
 
 
 # Set up the centralized configuration.
@@ -49,8 +48,8 @@ if os.path.exists(config_filename):
 # Per-package manager common setup.
 squid_url = config.get('squid-cache', 'url')
 pypi_url = config.get('pypi-cache', 'url')
-common_setup_lines: List[str] = []
-package_manager_setup_lines: Dict[str, List[str]] = {}
+common_setup_lines: list[str] = []
+package_manager_setup_lines: dict[str, list[str]] = {}
 
 if pypi_url:
     pypi_hostname = urlparse(pypi_url).hostname
@@ -150,6 +149,8 @@ DIST_TYPES = {
 
 if 'rhel' in config:
     rhel_config = config['rhel']
+    org = rhel_config['organization_id']
+    key = rhel_config['activation_key']
 
     DIST_TYPES.update({
         'rhel': {
@@ -157,10 +158,8 @@ if 'rhel' in config:
             'setup_lines': [
                 'ENV container docker',
 
-                'RUN subscription-manager register --org=%s'
-                ' --activationkey=%s'
-                % (rhel_config['organization_id'],
-                   rhel_config['activation_key']),
+                f'RUN subscription-manager register --org={org}'
+                f' --activationkey={key}',
 
                 'RUN yum update -y && yum install -y python3',
 
@@ -455,6 +454,8 @@ NORM_ID_RE = re.compile(r'[^A-Za-z0-9]')
 
 
 class BuildResult(Enum):
+    """The result of a build."""
+
     SUCCEEDED = 1
     FAILED = 2
     ERROR = 3
@@ -462,6 +463,8 @@ class BuildResult(Enum):
 
 @dataclass
 class Build:
+    """Information about a build."""
+
     #: The base image used for the Dockerfile.
     base_image: str
 
@@ -475,10 +478,10 @@ class Build:
     name: str
 
     #: Options for the distribution type.
-    dist_type_options: Dict[str, Any]
+    dist_type_options: Mapping[str, Any]
 
     #: Options for the distribution.
-    dist_options: Dict[str, Any]
+    dist_options: Mapping[str, Any]
 
     #: The platform to build for.
     platform: str
@@ -490,7 +493,7 @@ class Build:
     verbose: bool
 
     #: The resulting build status.
-    result: Optional[BuildResult] = None
+    result: (BuildResult | None) = None
 
     def __str__(self) -> str:
         return f'{self.name} ({self.platform})'
@@ -498,17 +501,29 @@ class Build:
 
 def build_dist(
     build: Build,
+    *,
+    on_start: (Callable[[Build], None] | None) = None,
 ) -> None:
     """Build a distribution in Docker.
 
     This will generate a Dockerfile from the installation steps for the
     distribution and then attempt to build it.
 
+    Version Changed:
+        1.3:
+        Added the ``on_start`` argument.
+
     Args:
         build (Build):
             The build information and storage for the result.
+
+        on_start (callable, optional):
+            A callback invoked when the build starts.
+
+            Version Added:
+                1.3
     """
-    setup_lines: List[str] = []
+    setup_lines: list[str] = []
 
     setup_lines += (
         common_setup_lines +
@@ -571,7 +586,10 @@ def build_dist(
         print()
         print()
 
-    print(f'{YELLOW}⏳ Building {build}...{RESET}')
+    if on_start is not None:
+        on_start(build)
+    else:
+        print(f'[yellow]⏳ Building {build}...[/]')
 
     with open(log_file, 'wb') as fp:
         fp.write('\n'.join(lines).encode('utf-8'))
@@ -612,14 +630,43 @@ def build_dist(
 
 
 def run_builds(
-    builds: List[Build],
+    builds: Sequence[Build],
+    *,
     parallel: bool,
     max_parallel: int = 2,
+    on_start: (Callable[[Build], None] | None) = None,
 ) -> Iterator[Build]:
+    """Run a set of builds.
+
+    Version Changed:
+        1.3:
+        Added the ``on_start`` argument and made ``parallel`` and
+        ``max_parallel`` keyword-only.
+
+    Args:
+        builds (list of Build):
+            The list of builds to run.
+
+        parallel (bool):
+            Whether to run builds in parallel.
+
+        max_parallel (int, optional):
+            The maximum number of builds to run in parallel.
+
+        on_start (callable, optional):
+            A callback for when a build starts.
+
+            Version Added:
+                1.3
+
+    Yields:
+        Build:
+        The completed builds.
+    """
     if parallel:
         with ThreadPoolExecutor(max_workers=max_parallel) as executor:
             futures_to_build = {
-                executor.submit(build_dist, build): build
+                executor.submit(build_dist, build, on_start=on_start): build
                 for build in builds
             }
 
@@ -627,8 +674,79 @@ def run_builds(
                 yield futures_to_build[future]
     else:
         for build in builds:
-            build_dist(build)
+            build_dist(build, on_start=on_start)
             yield build
+
+
+def _get_status_text(
+    build: Build,
+) -> tuple[str, str, str]:
+    """Return info for a completed build's status column.
+
+    Args:
+        build (Build):
+            The completed build.
+
+    Returns:
+        tuple:
+        A 3-tuple of:
+
+        Tuple:
+            0 (str):
+                The icon or emoji to use.
+
+            1 (str):
+                The label for the build.
+
+            2 (str):
+                The color for the status.
+    """
+    result = build.result
+
+    if result == BuildResult.SUCCEEDED:
+        if build.expect_success:
+            return ('✔', 'Succeeded', 'green')
+        else:
+            return ('✔', 'Failed as expected', 'green')
+    elif result == BuildResult.FAILED:
+        if build.expect_success:
+            return ('✘', 'Failed', 'red')
+        else:
+            return ('✘', 'Unexpectedly succeeded', 'red')
+    else:
+        return ('⚠', 'Error', 'red')
+
+
+def _categorize_build(
+    build: Build,
+    *,
+    succeeded: list[Build],
+    failed: list[Build],
+    errors: list[Build],
+) -> None:
+    """Sort a completed build into the appropriate result list.
+
+    Args:
+        build (Build):
+            The completed build.
+
+        succeeded (list):
+            The list of succeeded builds.
+
+        failed (list):
+            The list of failed builds.
+
+        errors (list):
+            The list of errored builds.
+    """
+    result = build.result
+
+    if result == BuildResult.SUCCEEDED:
+        succeeded.append(build)
+    elif result == BuildResult.FAILED:
+        failed.append(build)
+    elif result == BuildResult.ERROR:
+        errors.append(build)
 
 
 def main() -> None:
@@ -648,6 +766,15 @@ def main() -> None:
             'logging.'
         ))
     parser.add_argument(
+        '-l',
+        '--list',
+        action='store_true',
+        help=(
+            'List available build targets. This can be combined with '
+            '--platforms in order to list only builds available for a given '
+            'platform.'
+        ))
+    parser.add_argument(
         '-c',
         '--max-parallel',
         metavar='NUM',
@@ -661,7 +788,7 @@ def main() -> None:
         dest='last_failed',
         action='store_true',
         help=(
-            "Whether to only run builds that failed last time."
+            'Whether to only run builds that failed last time.'
         ))
     parser.add_argument(
         '--platforms',
@@ -677,11 +804,11 @@ def main() -> None:
         'dist',
         nargs='*',
         default='all',
-        choices=(
-            ['all'] +
-            sorted(DIST_TYPES.keys()) +
-            sorted(DISTS.keys())
-        ))
+        choices=[
+            'all',
+            *sorted(DIST_TYPES.keys()),
+            *sorted(DISTS.keys()),
+        ])
 
     args = parser.parse_args()
     last_failed = args.last_failed
@@ -689,6 +816,31 @@ def main() -> None:
     parallel = args.parallel
     platforms_set = set(args.platforms.split(','))
     verbose = args.verbose and not parallel
+
+    if not platforms_set:
+        sys.stderr.write('No platforms selected!\n')
+        sys.exit(1)
+
+    # If the user is asking for a list of targets, print them and exit.
+    if args.list:
+        for dist, dist_info in sorted(DISTS.items()):
+            platforms = set(dist_info.get('platforms', ['linux/amd64']))
+
+            if platforms & platforms_set:
+                t = Text()
+
+                if ':' in dist:
+                    name, version = dist.split(':', 1)
+
+                    t.append(name)
+                    t.append(':')
+                    t.append(version, style='cyan')
+                else:
+                    t.append(dist)
+
+                print(t)
+
+        sys.exit(0)
 
     # Determine which distributions we'll be testing with.
     if 'all' in args.dist:
@@ -736,10 +888,10 @@ def main() -> None:
     if not os.path.exists(log_dir):
         os.makedirs(log_dir, 0o755)
 
-    succeeded_builds: List[Build] = []
-    failed_builds: List[Build] = []
-    error_builds: List[Build] = []
-    pending_builds: List[Build] = []
+    succeeded_builds: list[Build] = []
+    failed_builds: list[Build] = []
+    error_builds: list[Build] = []
+    pending_builds: list[Build] = []
 
     for dist in dists:
         dist_info = DISTS[dist]
@@ -765,57 +917,104 @@ def main() -> None:
     else:
         print(f'Running {num_builds} install tests...')
 
-    for build in run_builds(pending_builds,
-                            parallel=parallel,
-                            max_parallel=args.max_parallel):
-        platform = build.platform
-        result = build.result
-
-        if verbose:
+    if verbose:
+        # Verbose mode: sequential output with per-build status lines.
+        for build in run_builds(pending_builds,
+                                parallel=False,
+                                max_parallel=args.max_parallel):
             print()
             print()
 
-        if result == BuildResult.SUCCEEDED:
-            succeeded_builds.append(build)
+            _categorize_build(
+                build,
+                succeeded=succeeded_builds,
+                failed=failed_builds,
+                errors=error_builds)
 
-            if build.expect_success:
-                print(f'{GREEN}✅ {build} build succeeded!{RESET}')
-            else:
-                print(f'{GREEN}✅ {build} build failed as expected!{RESET}')
-        elif result == BuildResult.FAILED:
-            failed_builds.append(build)
+            icon, label, style = _get_status_text(build)
+            print(f'[{style}]{icon} {label}: {build}[/]')
+    else:
+        # Live table mode: show all builds in a single updating table.
+        spinners: dict[int, Spinner] = {}
+        lock = threading.Lock()
 
-            if build.expect_success:
-                print(f'{RED}❌ {build} build failed!{RESET}')
-            else:
-                print(f'{RED}❌ {build} build surprisingly succeeded! Kinda '
-                      f'sus...{RESET}')
-        elif result == BuildResult.ERROR:
-            error_builds.append(build)
+        def on_start(
+            build: Build,
+        ) -> None:
+            with lock:
+                spinners[id(build)] = Spinner('dots')
 
-            print(f'{RED}⚠️  {build} build had an unexpected error!{RESET}')
+        def make_table() -> Table:
+            table = Table(box=box.SIMPLE, pad_edge=False)
+            table.add_column('', width=1, no_wrap=True)
+            table.add_column('Build', min_width=20, no_wrap=True)
+            table.add_column('Platform', min_width=12, no_wrap=True)
+            table.add_column('Status', min_width=15)
+
+            for build in pending_builds:
+                if build.result is not None:
+                    icon, label, color = _get_status_text(build)
+
+                    table.add_row(
+                        Text(icon, style=color),
+                        Text(build.name, style=color),
+                        Text(build.platform, style=color),
+                        Text(label, style=color),
+                    )
+                elif id(build) in spinners:
+                    table.add_row(
+                        spinners[id(build)],
+                        Text(build.name),
+                        Text(build.platform),
+                        Text('Building...', style='yellow'),
+                    )
+                else:
+                    table.add_row(
+                        Text('·', style='dim'),
+                        Text(build.name, style='dim'),
+                        Text(build.platform, style='dim'),
+                        Text('Queued', style='dim'),
+                    )
+
+            return table
+
+        with Live(
+            get_renderable=make_table,
+            refresh_per_second=8,
+        ):
+            for build in run_builds(pending_builds,
+                                    parallel=parallel,
+                                    max_parallel=args.max_parallel,
+                                    on_start=on_start):
+                _categorize_build(
+                    build,
+                    succeeded=succeeded_builds,
+                    failed=failed_builds,
+                    errors=error_builds)
 
     # Clean up.
     shutil.rmtree(tmpdir)
 
     # Report a summary of the statuses of the builds that were run.
-    for builds, color, status in ((succeeded_builds, GREEN, 'succeeded'),
-                                  (failed_builds, RED, 'failed'),
-                                  (error_builds, RED, 'unexpectedly errored')):
+    for builds, color, status in (
+        (succeeded_builds, '[green]', 'succeeded'),
+        (failed_builds, '[red]', 'failed'),
+        (error_builds, '[red]', 'unexpectedly errored'),
+    ):
         if builds:
             print()
 
             num_builds = len(builds)
 
             if num_builds == 1:
-                print(f'{color}1 build {status}:{RESET}')
+                print(f'{color}1 build {status}:[/]')
             else:
-                print(f'{color}{num_builds} builds {status}:{RESET}')
+                print(f'{color}{num_builds} builds {status}:[/]')
 
             print()
 
             for build in sorted(builds, key=lambda build: build.name):
-                print(f'    {color}{build}{RESET}')
+                print(f'    {color}{build}[/]')
 
     print()
     print(f'Logs are stored in {log_dir}')
