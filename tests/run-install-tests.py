@@ -440,9 +440,14 @@ DISTS = {
         'image': 'ubuntu:22.04',
         'platforms': ['linux/amd64', 'linux/arm64'],
     },
-    'ubuntu:23.10': {
+    'ubuntu:24.04': {
         'type': 'ubuntu',
-        'image': 'ubuntu:23.10',
+        'image': 'ubuntu:24.04',
+        'platforms': ['linux/amd64', 'linux/arm64'],
+    },
+    'ubuntu:25.10': {
+        'type': 'ubuntu',
+        'image': 'ubuntu:25.10',
         'platforms': ['linux/amd64', 'linux/arm64'],
     },
     'ubuntu:latest': {  # Maps to the latest LTS

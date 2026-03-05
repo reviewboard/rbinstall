@@ -3087,8 +3087,8 @@ class GetInstallSteps(TestCase):
                 *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
-    def test_with_ubuntu_23_10_x86_64(self) -> None:
-        """Testing get_install_steps with Ubuntu 23.10 (x86_64)"""
+    def test_with_ubuntu_24_04_x86_64(self) -> None:
+        """Testing get_install_steps with Ubuntu 24.04 (x86_64)"""
         install_state = self.create_install_state(
             arch='x86_64',
             distro_id='ubuntu',
@@ -3096,7 +3096,7 @@ class GetInstallSteps(TestCase):
                 'debian',
                 'ubuntu',
             },
-            version='23.10')
+            version='24.04')
 
         self.assertEqual(
             get_install_steps(install_state=install_state),
@@ -3129,8 +3129,8 @@ class GetInstallSteps(TestCase):
                 *self.COMMON_LINUX_X86_STEPS,
             ])
 
-    def test_with_ubuntu_23_10_aarch64(self) -> None:
-        """Testing get_install_steps with Ubuntu 23.10 (aarch64)"""
+    def test_with_ubuntu_24_04_aarch64(self) -> None:
+        """Testing get_install_steps with Ubuntu 24.04 (aarch64)"""
         install_state = self.create_install_state(
             arch='aarch64',
             distro_id='ubuntu',
@@ -3138,7 +3138,7 @@ class GetInstallSteps(TestCase):
                 'debian',
                 'ubuntu',
             },
-            version='23.10')
+            version='24.04')
 
         self.assertEqual(
             get_install_steps(install_state=install_state),
@@ -3160,6 +3160,90 @@ class GetInstallSteps(TestCase):
                         'pkg-config',
                         'python3-dev',
                         'python3-pip',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'libmysqlclient-dev',
+                        'subversion',
+                        'libsvn-dev',
+                    ],
+                },
+                *self.COMMON_LINUX_ARM64_STEPS,
+            ])
+
+    def test_with_ubuntu_25_10_x86_64(self) -> None:
+        """Testing get_install_steps with Ubuntu 25.10 (x86_64)"""
+        install_state = self.create_install_state(
+            arch='x86_64',
+            distro_id='ubuntu',
+            distro_families={
+                'debian',
+                'ubuntu',
+            },
+            version='25.10')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.APT,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'build-essential',
+                        'libffi-dev',
+                        'libjpeg-dev',
+                        'libssl-dev',
+                        'libxml2-dev',
+                        'libxslt-dev',
+                        'libxmlsec1-dev',
+                        'patch',
+                        'pkg-config',
+                        'python3-dev',
+                        'python3-pip',
+                        'libxmlsec1-openssl1',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'libmysqlclient-dev',
+                        'subversion',
+                        'libsvn-dev',
+                    ],
+                },
+                *self.COMMON_LINUX_X86_STEPS,
+            ])
+
+    def test_with_ubuntu_25_10_aarch64(self) -> None:
+        """Testing get_install_steps with Ubuntu 25.10 (aarch64)"""
+        install_state = self.create_install_state(
+            arch='aarch64',
+            distro_id='ubuntu',
+            distro_families={
+                'debian',
+                'ubuntu',
+            },
+            version='25.10')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.APT,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'build-essential',
+                        'libffi-dev',
+                        'libjpeg-dev',
+                        'libssl-dev',
+                        'libxml2-dev',
+                        'libxslt-dev',
+                        'libxmlsec1-dev',
+                        'patch',
+                        'pkg-config',
+                        'python3-dev',
+                        'python3-pip',
+                        'libxmlsec1-openssl1',
                         'cvs',
                         'git',
                         'memcached',

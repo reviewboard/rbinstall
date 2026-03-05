@@ -51,7 +51,8 @@ The following Linux distributions are directly supported on a default install:
 * Rocky Linux 9
 * Rocky Linux 10
 * Ubuntu 22.04 LTS
-* Ubuntu 23.10
+* Ubuntu 24.04 LTS
+* Ubuntu 25.10
 
 
 The following do not currently work because they ship Python 3.14, which is not

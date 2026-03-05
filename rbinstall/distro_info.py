@@ -544,6 +544,25 @@ PACKAGES: _Packages = {
                 ],
             },
 
+            # Ubuntu 25.10 and rolling did the same. As of 2026-03-05 rolling
+            # reports itself as 25.10.
+            {
+                'match': {
+                    'systems': {'Linux'},
+                    'distro_families': {
+                        'ubuntu',
+                    },
+                    'distro_version': match_version(25),
+                },
+                'install_method': InstallMethodType.APT,
+                'skip_packages': [
+                    'libxmlsec1-openssl',
+                ],
+                'packages': [
+                    'libxmlsec1-openssl1',
+                ],
+            },
+
             # openSUSE
             {
                 'match': {
