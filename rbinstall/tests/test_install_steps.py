@@ -631,6 +631,136 @@ class GetInstallSteps(TestCase):
                 *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
+    def test_with_centos_stream_10_x86_64(self) -> None:
+        """Testing get_install_steps with CentOS Stream 10 (x86_64)"""
+        install_state = self.create_install_state(
+            arch='x86_64',
+            distro_id='centos',
+            distro_families={
+                'centos',
+                'fedora',
+                'rhel',
+            },
+            version='10')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'install_method': InstallMethodType.SHELL,
+                    'name': 'Setting up support for packages',
+                    'state': [
+                        'dnf', 'install', '-y', 'dnf-plugins-core',
+                    ],
+                },
+                {
+                    'install_method': InstallMethodType.SHELL,
+                    'name': 'Setting up support for packages',
+                    'state': [
+                        'dnf', 'config-manager', '--set-enabled', 'crb',
+                    ],
+                },
+                {
+                    'install_method': InstallMethodType.SHELL,
+                    'name': 'Setting up support for packages',
+                    'state': [
+                        'yum', 'install', '-y', 'epel-release',
+                    ],
+                },
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.YUM,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'gcc',
+                        'gcc-c++',
+                        'libffi-devel',
+                        'libxml2-devel',
+                        'libxslt-devel',
+                        'make',
+                        'openssl-devel',
+                        'patch',
+                        'perl',
+                        'python3-devel',
+                        'libtool-ltdl-devel',
+                        'xmlsec1-devel',
+                        'xmlsec1-openssl-devel',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'mariadb-connector-c-devel',
+                        'subversion',
+                        'subversion-devel',
+                    ],
+                },
+                *self.COMMON_LINUX_X86_STEPS,
+            ])
+
+    def test_with_centos_stream_10_aarch64(self) -> None:
+        """Testing get_install_steps with CentOS Stream 10 (aarch64)"""
+        install_state = self.create_install_state(
+            arch='aarch64',
+            distro_id='centos',
+            distro_families={
+                'centos',
+                'fedora',
+                'rhel',
+            },
+            version='10')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'install_method': InstallMethodType.SHELL,
+                    'name': 'Setting up support for packages',
+                    'state': [
+                        'dnf', 'install', '-y', 'dnf-plugins-core',
+                    ],
+                },
+                {
+                    'install_method': InstallMethodType.SHELL,
+                    'name': 'Setting up support for packages',
+                    'state': [
+                        'dnf', 'config-manager', '--set-enabled', 'crb',
+                    ],
+                },
+                {
+                    'install_method': InstallMethodType.SHELL,
+                    'name': 'Setting up support for packages',
+                    'state': [
+                        'yum', 'install', '-y', 'epel-release',
+                    ],
+                },
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.YUM,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'gcc',
+                        'gcc-c++',
+                        'libffi-devel',
+                        'libxml2-devel',
+                        'libxslt-devel',
+                        'make',
+                        'openssl-devel',
+                        'patch',
+                        'perl',
+                        'python3-devel',
+                        'libtool-ltdl-devel',
+                        'xmlsec1-devel',
+                        'xmlsec1-openssl-devel',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'mariadb-connector-c-devel',
+                        'subversion',
+                        'subversion-devel',
+                    ],
+                },
+                *self.COMMON_LINUX_ARM64_STEPS,
+            ])
+
     def test_with_debian_11_x86_64(self) -> None:
         """Testing get_install_steps with Debian 11 (x86_64)"""
         install_state = self.create_install_state(

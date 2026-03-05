@@ -101,6 +101,12 @@ DIST_TYPES = {
         'package_type': 'yum',
         'setup_lines': [
             'ENV container docker',
+
+            # The image we're using isn't set up with the correct keys, so just
+            # turn off verification of yum repos.
+            'RUN sed -i "s/gpgcheck=1/gpgcheck=0/g"'
+            ' /etc/yum.repos.d/*.repo',
+
             'RUN yum update -y && yum install -y python3',
         ],
     },
@@ -206,12 +212,17 @@ DISTS = {
     'centos:stream9': {
         'type': 'centos',
         'image': 'tgagor/centos:stream9',
-        'platforms': ['linux/amd64'],
+        'platforms': ['linux/amd64', 'linux/arm64'],
+    },
+    'centos:stream10': {
+        'type': 'centos',
+        'image': 'tgagor/centos:stream10',
+        'platforms': ['linux/amd64', 'linux/arm64'],
     },
     'centos:latest': {
         'type': 'centos',
         'image': 'tgagor/centos:latest',
-        'platforms': ['linux/amd64'],
+        'platforms': ['linux/amd64', 'linux/arm64'],
     },
 
     # Debian Linux

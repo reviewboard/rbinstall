@@ -159,11 +159,12 @@ PACKAGES: _Packages = {
                 ],
             },
 
-            # CentOS
+            # CentOS 9 Stream and below
             {
                 'match': {
                     'systems': {'Linux'},
                     'distro_ids': {'centos'},
+                    'distro_version': match_version(10, op=operator.lt),
                 },
                 'commands': [
                     [
@@ -175,6 +176,26 @@ PACKAGES: _Packages = {
                     [
                         'yum', 'install', '-y', 'epel-release',
                         'epel-next-release',
+                    ],
+                ],
+            },
+
+            # CentOS 10 Stream
+            {
+                'match': {
+                    'systems': {'Linux'},
+                    'distro_ids': {'centos'},
+                    'distro_version': match_version(10, op=operator.ge),
+                },
+                'commands': [
+                    [
+                        'dnf', 'install', '-y', 'dnf-plugins-core',
+                    ],
+                    [
+                        'dnf', 'config-manager', '--set-enabled', 'crb',
+                    ],
+                    [
+                        'yum', 'install', '-y', 'epel-release',
                     ],
                 ],
             },
