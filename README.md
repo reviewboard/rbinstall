@@ -37,7 +37,6 @@ a web server such as [gunicorn](https://gunicorn.org/),
 The following Linux distributions are directly supported on a default install:
 
 * Amazon Linux 2023
-* Arch Linux
 * CentOS 9 Stream
 * CentOS 10 Stream
 * Debian 11 (Bullseye)
@@ -53,6 +52,14 @@ The following Linux distributions are directly supported on a default install:
 * Rocky Linux 10
 * Ubuntu 22.04 LTS
 * Ubuntu 23.10
+
+
+The following do not currently work because they ship Python 3.14, which is not
+currently supported by Review Board. They should work if you manually install
+Python 3.13:
+
+* Arch Linux
+* Fedora Rawhide
 
 
 The following are known to work if you install a newer version of Python

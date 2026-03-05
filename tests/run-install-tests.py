@@ -194,6 +194,10 @@ DISTS = {
         'type': 'archlinux',
         'image': 'archlinux:latest',
         'platforms': ['linux/amd64'],
+
+        # Arch currently ships Python 3.14, which Review Board does not yet
+        # support.
+        'expect_success': False,
     },
 
     # CentOS Stream
