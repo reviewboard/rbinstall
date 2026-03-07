@@ -159,12 +159,33 @@ PACKAGES: _Packages = {
                 ],
             },
 
-            # CentOS 9 Stream and below
+            # CentOS 8 and CentOS 8 Stream
             {
                 'match': {
                     'systems': {'Linux'},
                     'distro_ids': {'centos'},
-                    'distro_version': match_version(10, op=operator.lt),
+                    'distro_version': match_version(9, op=operator.lt),
+                },
+                'commands': [
+                    [
+                        'dnf', 'install', '-y', 'dnf-plugins-core',
+                    ],
+                    [
+                        'dnf', 'config-manager', '--set-enabled',
+                        'powertools',
+                    ],
+                    [
+                        'yum', 'install', '-y', 'epel-release',
+                    ],
+                ],
+            },
+
+            # CentOS 9 Stream
+            {
+                'match': {
+                    'systems': {'Linux'},
+                    'distro_ids': {'centos'},
+                    'distro_version': match_version(9),
                 },
                 'commands': [
                     [

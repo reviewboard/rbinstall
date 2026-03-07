@@ -204,13 +204,37 @@ DISTS = {
         'type': 'centos',
         'image': 'centos:8',
         'platforms': ['linux/amd64'],
-        'expect_success': False,
+        'python_exe': 'python3.8',
+        'setup_lines': [
+            'RUN sed -i "s/mirrorlist/#mirrorlist/g"'
+            ' /etc/yum.repos.d/CentOS-*',
+
+            "RUN sed -i"
+            " 's|#baseurl=http://mirror.centos.org"
+            "/$contentdir/$releasever"
+            "|baseurl=http://vault.centos.org/8.5.2111|g'"
+            " /etc/yum.repos.d/CentOS-*",
+
+            'RUN yum install -y python38 python38-devel',
+        ],
     },
     'centos:stream8': {
         'type': 'centos',
         'image': 'tgagor/centos:stream8',
         'platforms': ['linux/amd64'],
-        'expect_success': False,
+        'python_exe': 'python3.8',
+        'setup_lines': [
+            'RUN sed -i "s/mirrorlist/#mirrorlist/g"'
+            ' /etc/yum.repos.d/CentOS-*',
+
+            "RUN sed -i"
+            " 's|#baseurl=http://mirror.centos.org"
+            "/$contentdir/$stream"
+            "|baseurl=https://vault.centos.org/8-stream|g'"
+            " /etc/yum.repos.d/CentOS-*",
+
+            'RUN yum install -y python38 python38-devel',
+        ],
     },
     'centos:stream9': {
         'type': 'centos',

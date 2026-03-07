@@ -371,6 +371,70 @@ class GetInstallSteps(TestCase):
                 *self.COMMON_LINUX_ARM64_STEPS,
             ])
 
+    def test_with_centos_8_x86_64(self) -> None:
+        """Testing get_install_steps with CentOS 8 (x86_64)"""
+        install_state = self.create_install_state(
+            arch='x86_64',
+            distro_id='centos',
+            distro_families={
+                'centos',
+                'fedora',
+                'rhel',
+            },
+            version='8')
+
+        self.assertEqual(
+            get_install_steps(install_state=install_state),
+            [
+                {
+                    'install_method': InstallMethodType.SHELL,
+                    'name': 'Setting up support for packages',
+                    'state': [
+                        'dnf', 'install', '-y', 'dnf-plugins-core',
+                    ],
+                },
+                {
+                    'install_method': InstallMethodType.SHELL,
+                    'name': 'Setting up support for packages',
+                    'state': [
+                        'dnf', 'config-manager', '--set-enabled',
+                        'powertools',
+                    ],
+                },
+                {
+                    'install_method': InstallMethodType.SHELL,
+                    'name': 'Setting up support for packages',
+                    'state': [
+                        'yum', 'install', '-y', 'epel-release',
+                    ],
+                },
+                {
+                    'allow_fail': False,
+                    'install_method': InstallMethodType.YUM,
+                    'name': 'Installing system packages',
+                    'state': [
+                        'gcc',
+                        'gcc-c++',
+                        'libffi-devel',
+                        'libxml2-devel',
+                        'libxslt-devel',
+                        'make',
+                        'openssl-devel',
+                        'patch',
+                        'perl',
+                        'python3-devel',
+                        'libtool-ltdl-devel',
+                        'cvs',
+                        'git',
+                        'memcached',
+                        'mariadb-connector-c-devel',
+                        'subversion',
+                        'subversion-devel',
+                    ],
+                },
+                *self.COMMON_LINUX_X86_STEPS,
+            ])
+
     def test_with_centos_stream_8_x86_64(self) -> None:
         """Testing get_install_steps with CentOS Stream 8 (x86_64)"""
         install_state = self.create_install_state(
@@ -397,7 +461,8 @@ class GetInstallSteps(TestCase):
                     'install_method': InstallMethodType.SHELL,
                     'name': 'Setting up support for packages',
                     'state': [
-                        'dnf', 'config-manager', '--set-enabled', 'crb',
+                        'dnf', 'config-manager', '--set-enabled',
+                        'powertools',
                     ],
                 },
                 {
@@ -405,7 +470,6 @@ class GetInstallSteps(TestCase):
                     'name': 'Setting up support for packages',
                     'state': [
                         'yum', 'install', '-y', 'epel-release',
-                        'epel-next-release',
                     ],
                 },
                 {
@@ -461,7 +525,8 @@ class GetInstallSteps(TestCase):
                     'install_method': InstallMethodType.SHELL,
                     'name': 'Setting up support for packages',
                     'state': [
-                        'dnf', 'config-manager', '--set-enabled', 'crb',
+                        'dnf', 'config-manager', '--set-enabled',
+                        'powertools',
                     ],
                 },
                 {
@@ -469,7 +534,6 @@ class GetInstallSteps(TestCase):
                     'name': 'Setting up support for packages',
                     'state': [
                         'yum', 'install', '-y', 'epel-release',
-                        'epel-next-release',
                     ],
                 },
                 {
